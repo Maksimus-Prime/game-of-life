@@ -4,11 +4,10 @@ var expect = require('expect.js');
 
 module.exports = {
 	entry: {
-		model: ['./conway/model.ts'],
-		app: './conway/app.ts'
+		app: './src/app'
 	},
 	output: {
-		path: __dirname + "/conway/compiled/",
+		path: __dirname + "/src/compiled/",
 		filename: "[name].js"
 	},
 
@@ -30,6 +29,14 @@ module.exports = {
 				pretty: true
 			}
 		}]
+	},
+
+	resolve: {
+		modules: [
+			'src',
+			'node_modules'
+		],
+		extensions: ['.json', '.js', '.jsx', '.ts', '.tsx']
 	},
 
 	plugins: [

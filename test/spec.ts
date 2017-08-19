@@ -1,7 +1,7 @@
 import {} from 'mocha';
 import * as chai from 'chai';
 let expect = chai.expect;
-import Model from '../conway/model';
+import Model from './../src/model';
 
 let model: Model;
 model = new Model();
