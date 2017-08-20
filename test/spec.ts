@@ -4,13 +4,10 @@ let expect = chai.expect;
 import Model from './../src/model';
 
 let model: Model;
-model = new Model();
+model = new Model(5, 3);
 
-describe('getListeners', () => {
-	it('getListeners should be a function', () => {
-		expect(model.getListeners).to.be.a('object');
-	});
-	it('getListeners should return an object', () => {
-		expect(model.getListeners()).to.be.an('object');
+describe('boardInit', () => {
+	it('boardInit should be a function', () => {
+		expect(model.boardInit).to.be.a('object');
 	});
 });

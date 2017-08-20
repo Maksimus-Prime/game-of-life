@@ -13,6 +13,14 @@ module.exports = {
 
 	watch: true,
 
+	resolve: {
+		modules: [
+			'src',
+			'node_modules'
+		],
+		extensions: ['', '.json', '.js', '.jsx', '.ts', '.tsx']
+	},
+
 	module: {
 		loaders: [{
 			test: /\.(js)$/,
@@ -29,14 +37,6 @@ module.exports = {
 				pretty: true
 			}
 		}]
-	},
-
-	resolve: {
-		modules: [
-			'src',
-			'node_modules'
-		],
-		extensions: ['.json', '.js', '.jsx', '.ts', '.tsx']
 	},
 
 	plugins: [

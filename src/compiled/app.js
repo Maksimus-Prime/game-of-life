@@ -47,9 +47,41 @@
 	"use strict";
 
 	Object.defineProperty(exports, "__esModule", { value: true });
-	var model_1 = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./model\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
-	var model = new model_1.default();
-	console.log(model.getListeners());
+	var model_1 = __webpack_require__(1);
+	var model = new model_1.default(5, 3);
+	model.boardInit();
+	model.getBoard();
+
+/***/ },
+/* 1 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", { value: true });
+	var Model = function () {
+	    function Model(width, height) {
+	        this.board = {};
+	        this.width = width;
+	        this.height = height;
+	    }
+	    Model.prototype.boardInit = function () {
+	        for (var i = 0; i < this.width; i++) {
+	            for (var j = 0; j < this.height; j++) {
+	                this.board[getCellRepresentation(i, j)] = { x: i, y: j, alive: true };
+	            }
+	        }
+	        return;
+	    };
+	    Model.prototype.getBoard = function () {
+	        console.log(this.board);
+	    };
+	    return Model;
+	}();
+	exports.default = Model;
+	function getCellRepresentation(x, y) {
+	    return 'x' + x + 'y' + y;
+	}
 
 /***/ }
 /******/ ]);

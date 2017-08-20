@@ -9,15 +9,14 @@ module.exports = function(config) {
       'karma-mocha',
       'karma-chai',
       'karma-sinon',
-      'karma-typescript',
       'karma-mocha-reporter',
       'karma-chrome-launcher'
     ],
 
-    frameworks: ['mocha', 'chai', 'sinon', 'karma-typescript'],
+    frameworks: ['mocha', 'chai', 'sinon'],
 
     files: [
-      'test/spec.ts'
+      "test/spec.ts"
     ],
 
     reporters: ['mocha'],
@@ -32,7 +31,7 @@ module.exports = function(config) {
     webpack: webpackConfig,
 
     preprocessors: {
-      'test/spec.ts': ['webpack']
+      "test/spec.ts": ['webpack']
     }
   })
 }
