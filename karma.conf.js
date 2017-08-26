@@ -3,6 +3,8 @@ var webpackConfig = require('./webpack.config.js');
 module.exports = function(config) {
   config.set({
     basePath: '',
+    autoWatch:  true,
+    singleRun: false,
 
     plugins: [
       'karma-webpack',
@@ -15,8 +17,12 @@ module.exports = function(config) {
 
     frameworks: ['mocha', 'chai', 'sinon'],
 
+    mime: {
+      'text/x-typescript': ['ts','tsx']
+    },
+    
     files: [
-      "test/spec.ts"
+      {pattern: 'test/*spec.ts', watched: true}
     ],
 
     reporters: ['mocha'],
@@ -31,7 +37,7 @@ module.exports = function(config) {
     webpack: webpackConfig,
 
     preprocessors: {
-      "test/spec.ts": ['webpack']
+      'test/*spec.ts': ['webpack']
     }
   })
 }

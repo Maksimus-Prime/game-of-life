@@ -1,0 +1,10 @@
+#data {
+	width: 60px;
+	line-height: 10px;
+}
+.cell {
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	background-color: #000; 
+}
