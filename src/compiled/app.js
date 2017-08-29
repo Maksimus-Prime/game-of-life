@@ -48,35 +48,17 @@
 
 	Object.defineProperty(exports, "__esModule", { value: true });
 	var model_1 = __webpack_require__(1);
-	var view_1 = __webpack_require__(2);
-	var model = new model_1.default(3, 3);
+	var view_1 = __webpack_require__(3);
+	var controller_1 = __webpack_require__(6);
+	var model = new model_1.default(5, 5);
 	var view = new view_1.default(model);
-	model.boardInit();
-	view.draw(model.board);
-	//let result:object = model.getCellAt('x1y1');
-	//let resultNum:number = model.getAliveNeighbors('x1y1');
-	console.log(model.board);
-	//model.board["x0y0"]["alive"] = true;
-	//model.board["x0y1"]["alive"] = true;
-	//model.board["x0y2"]["alive"] = true;
-	//model.board["x1y0"]["alive"] = true;
-	//model.board["x1y1"]["alive"] = true;
-	//model.board["x1y2"]["alive"] = true;
-	//model.board["x2y0"]["alive"] = true;
-	//model.board["x2y1"]["alive"] = true;
-	//model.board["x2y2"]["alive"] = true;
-	//model.nextBoardState();
-	var result = model.getCellAt('x1y1');
-	var resultNum = model.getAliveNeighbors('x1y1');
-	console.log(result);
-	console.log(model.board);
-	console.log(resultNum);
+	var controller = new controller_1.default(model, view);
 
 /***/ },
 /* 1 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	/* WEBPACK VAR INJECTION */(function(jQuery) {"use strict";
 
 	Object.defineProperty(exports, "__esModule", { value: true });
 	var Model = function () {
@@ -87,8 +69,9 @@
 	    }
 	    Model.prototype.boardInit = function () {
 	        var currentCell;
-	        for (var i = 0; i < this.width; i++) {
-	            for (var j = 0; j < this.height; j++) {
+	        this.board = {};
+	        for (var i = 0; i < this.height; i++) {
+	            for (var j = 0; j < this.width; j++) {
 	                currentCell = {
 	                    x: i,
 	                    y: j,
@@ -142,11 +125,44 @@
 	        var key;
 	        for (key in this.board) {
 	            var currentCell = this.board[key];
-	            console.log(this.getAliveNeighbors(key));
 	            var tempCell = this.calculateNextState(key);
 	            tempBoard[key] = tempCell;
 	        }
 	        this.board = tempBoard;
+	    };
+	    Model.prototype.editLifeState = function (key) {
+	        var cellAlive = this.board[key]["alive"];
+	        if (cellAlive) {
+	            this.board[key]["alive"] = false;
+	        } else {
+	            this.board[key]["alive"] = true;
+	        }
+	    };
+	    Model.prototype.resizeWidth = function (reWidth) {
+	        var temObj = jQuery.extend(true, {}, this.board);
+	        var temWidth = this.width;
+	        this.width = reWidth;
+	        this.boardInit();
+	        for (var keyy in this.board) {
+	            for (var key in temObj) {
+	                if (keyy == key) {
+	                    this.board[getCellRepresentation(temObj[keyy]["x"], temObj[keyy]["y"])] = temObj[keyy];
+	                }
+	            }
+	        }
+	    };
+	    Model.prototype.resizeHeight = function (reHeight) {
+	        var temObj = jQuery.extend(true, {}, this.board);
+	        var temHeight = this.height;
+	        this.height = reHeight;
+	        this.boardInit();
+	        for (var keyy in this.board) {
+	            for (var key in temObj) {
+	                if (keyy == key) {
+	                    this.board[getCellRepresentation(temObj[keyy]["x"], temObj[keyy]["y"])] = temObj[keyy];
+	                }
+	            }
+	        }
 	    };
 	    return Model;
 	}();
@@ -163,43 +179,10 @@
 	    }
 	    return length;
 	}
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ },
 /* 2 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", { value: true });
-	var $ = __webpack_require__(3);
-	__webpack_require__(6);
-	__webpack_require__(5);
-	var View = function () {
-	    function View(model) {
-	        this.model = model;
-	    }
-	    View.prototype.draw = function (board) {
-	        $.template('sample', '<i class="cell" id="' + 'x' + '${x}' + 'y' + '${y}"></i>');
-	        var len = objectLength(board);
-	        for (var key in board) {
-	            $.tmpl('sample', board[key]).appendTo('#data');
-	        }
-	    };
-	    return View;
-	}();
-	exports.default = View;
-	function objectLength(object) {
-	    var length = 0;
-	    for (var key in object) {
-	        if (object.hasOwnProperty(key)) {
-	            ++length;
-	        }
-	    }
-	    return length;
-	}
-
-/***/ },
-/* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -10458,7 +10441,57 @@
 
 
 /***/ },
-/* 4 */,
+/* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", { value: true });
+	var $ = __webpack_require__(2);
+	__webpack_require__(4);
+	__webpack_require__(5);
+	var View = function () {
+	    function View(model) {
+	        this.model = model;
+	        this.startButton = $('#startButton');
+	        this.pauseButton = $('#pauseButton');
+	        this.restartButton = $('#restartButton');
+	        this.widthInput = $('#widthInput');
+	        this.heigthInput = $('#heightInput');
+	    }
+	    View.prototype.draw = function () {
+	        $('#data').html('');
+	        $.template('sample', '<i class="cell" id="' + 'x' + '${x}' + 'y' + '${y}"></i>');
+	        $.template('sampleDead', '<i class="cell dead" id="' + 'x' + '${x}' + 'y' + '${y}"></i>');
+	        var len = objectLength(this.model.board);
+	        for (var key in this.model.board) {
+	            if (this.model.board[key]["alive"]) {
+	                $.tmpl('sample', this.model.board[key]).appendTo('#data');
+	            } else {
+	                $.tmpl('sampleDead', this.model.board[key]).appendTo('#data');
+	            }
+	        }
+	    };
+	    return View;
+	}();
+	exports.default = View;
+	function objectLength(object) {
+	    var length = 0;
+	    for (var key in object) {
+	        if (object.hasOwnProperty(key)) {
+	            ++length;
+	        }
+	    }
+	    return length;
+	}
+
+/***/ },
+/* 4 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+/***/ },
 /* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -10956,13 +10989,82 @@
 			jQuery(coll).remove();
 		}
 	})(jQuery);
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ },
 /* 6 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
+
+	Object.defineProperty(exports, "__esModule", { value: true });
+	var $ = __webpack_require__(2);
+	var Controller = function () {
+	    function Controller(model, view) {
+	        this.model = model;
+	        this.view = view;
+	        model.boardInit();
+	        $(window).ready(function () {
+	            view.draw();
+	            var timer;
+	            $('.cell').click(function () {
+	                $(this).toggleClass('dead');
+	                var key = $(this).attr('id');
+	                model.editLifeState(key);
+	            });
+	            view.startButton.click(function () {
+	                timer = setInterval(function () {
+	                    model.nextBoardState();
+	                    view.draw();
+	                }, 1000);
+	            });
+	            view.pauseButton.click(function () {
+	                clearTimeout(timer);
+	                view.draw();
+	                $('.cell').click(function () {
+	                    $(this).toggleClass('dead');
+	                    var key = $(this).attr('id');
+	                    model.editLifeState(key);
+	                });
+	            });
+	            view.restartButton.click(function () {
+	                clearTimeout(timer);
+	                model.boardInit();
+	                view.draw();
+	                $('.cell').click(function () {
+	                    $(this).toggleClass('dead');
+	                    var key = $(this).attr('id');
+	                    model.editLifeState(key);
+	                });
+	            });
+	            view.widthInput.blur(function () {
+	                if ($(this).val()) {
+	                    model.resizeWidth(+$(this).val());
+	                    $('#data').attr('style', 'width: ' + model.width * 20 + 'px');
+	                    view.draw();
+	                    $('.cell').click(function () {
+	                        $(this).toggleClass('dead');
+	                        var key = $(this).attr('id');
+	                        model.editLifeState(key);
+	                    });
+	                }
+	            });
+	            view.heigthInput.blur(function () {
+	                if ($(this).val()) {
+	                    model.resizeHeight(+$(this).val());
+	                    view.draw();
+	                    $('.cell').click(function () {
+	                        $(this).toggleClass('dead');
+	                        var key = $(this).attr('id');
+	                        model.editLifeState(key);
+	                    });
+	                }
+	            });
+	        });
+	    }
+	    return Controller;
+	}();
+	exports.default = Controller;
 
 /***/ }
 /******/ ]);

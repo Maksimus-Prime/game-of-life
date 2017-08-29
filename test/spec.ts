@@ -1,15 +1,18 @@
 import {} from 'mocha';
 import * as chai from 'chai';
 let expect = chai.expect;
-import Model from './../src/model';
-import View from './../src/view';
+import Model from './../src/mvc/model';
+import View from './../src/mvc/view';
+import Controller from './../src/mvc/controller';
 
 let model: Model;
 let width: number = 3;
 let height: number = 3;
-model = new Model(width, height);
 let view: View;
+let controller: Controller;
+model = new Model(width, height);
 view = new View(view);
+controller = new Controller(model, view);
 
 describe('model', () => {
 	it('model should be an object', () => {
@@ -51,8 +54,6 @@ describe('model', () => {
 			model.boardInit();
 			model.board["x0y0"]["alive"] = true;
 			model.board["x1y0"]["alive"] = true;
-			model.board["x1y2"]["alive"] = true;
-			model.board["x2y2"]["alive"] = true;
 			model.board["x2y1"]["alive"] = true;
 			let neighbours: number = model.getAliveNeighbors("x1y1");
 			expect(neighbours).to.eql(3);
@@ -65,48 +66,38 @@ describe('model', () => {
 		it('dies if there are less than 2 living neighbors', () => {
 			model.board["x0y0"]["alive"] = false;
 			model.board["x1y0"]["alive"] = false;
-			model.board["x1y2"]["alive"] = false;
-			model.board["x2y2"]["alive"] = false;
-			model.board["x2y1"]["alive"] = false;
-			model.board["x2y0"]["alive"] = false;
-			model.board["x0y2"]["alive"] = false;
+			model.board["x2y1"]["alive"] = true;
 			let neighbours: number = model.getAliveNeighbors("x1y1");
 			expect(neighbours).to.eql(1);
 			let result: object = model.calculateNextState('x1y1');
 			expect(result["alive"]).to.eql(false);
 		});
 		it('live if there are 2 living neighbors', () => {
+			model.board["x1y1"]["alive"] = true;
 			model.board["x0y0"]["alive"] = false;
-			model.board["x1y0"]["alive"] = false;
-			model.board["x1y2"]["alive"] = false;
-			model.board["x2y2"]["alive"] = false;
-			model.board["x2y1"]["alive"] = false;
-			model.board["x2y0"]["alive"] = true;
+			model.board["x1y0"]["alive"] = true;
+			model.board["x2y1"]["alive"] = true;
 			let neighbours: number = model.getAliveNeighbors("x1y1");
 			expect(neighbours).to.eql(2);
 			let result: object = model.calculateNextState('x1y1');
 			expect(result["alive"]).to.eql(true);
 		});
 		it('live if there are 3 living neighbors', () => {
-			model.board["x0y0"]["alive"] = false;
-			model.board["x1y0"]["alive"] = false;
-			model.board["x1y2"]["alive"] = false;
-			model.board["x2y2"]["alive"] = false;
+			model.board["x1y1"]["alive"] = true;
+			model.board["x0y0"]["alive"] = true;
+			model.board["x1y0"]["alive"] = true;
 			model.board["x2y1"]["alive"] = true;
-			model.board["x2y0"]["alive"] = true;
 			let neighbours: number = model.getAliveNeighbors("x1y1");
 			expect(neighbours).to.eql(3);
 			let result: object = model.calculateNextState('x1y1');
 			expect(result["alive"]).to.eql(true);
 		});
 		it('dies if there are more than 3 living neighbors', () => {
-			model.board["x0y0"]["alive"] = false;
-			model.board["x1y0"]["alive"] = false;
-			model.board["x1y2"]["alive"] = false;
-			model.board["x2y2"]["alive"] = false;
+			model.board["x1y1"]["alive"] = true;
+			model.board["x0y0"]["alive"] = true;
+			model.board["x1y0"]["alive"] = true;
 			model.board["x2y1"]["alive"] = true;
-			model.board["x2y0"]["alive"] = true;
-			model.board["x0y2"]["alive"] = true;
+			model.board["x2y2"]["alive"] = true;
 			let neighbours: number = model.getAliveNeighbors("x1y1");
 			expect(neighbours).to.eql(4);
 			let result: object = model.calculateNextState('x1y1');
@@ -130,6 +121,36 @@ describe('model', () => {
 			expect(model.nextBoardState).to.be.an('function');
 		});
 	});
+	describe('editLifeState', () => {
+		it('editCell should be a function', () => {
+			expect(model.editLifeState).to.be.an('function');
+		});
+		it('editCell should change cell"s life state', () => {
+			model.board["x0y0"]["alive"] = false;
+			model.editLifeState("x0y0");
+			expect(model.board["x0y0"]["alive"]).to.eql(true);
+		});
+	});
+	describe('changeWidth', () => {
+		it('changeWidth should be a function', () => {
+			expect(model.editLifeState).to.be.an('function');
+		});
+		it('changeWidth should change boards"s width', () => {
+			model.board["x0y0"]["alive"] = false;
+			model.changeWidth(7);
+			expect(model.width).to.eql(7);
+		});
+	});
+	describe('changeHeight', () => {
+		it('changeHeight should be a function', () => {
+			expect(model.editLifeState).to.be.an('function');
+		});
+		it('changeHeight should change boards"s width', () => {
+			model.board["x0y0"]["alive"] = false;
+			model.changeHeight(9);
+			expect(model.height).to.eql(9);
+		});
+	});
 });
 
 describe('view', () => {
@@ -137,6 +158,15 @@ describe('view', () => {
 		expect(view).to.be.an('object');
 	});
 	describe('model.draw', () => {
+		
+	});	
+});
+
+describe('controller', () => {
+	it('controller should be an object', () => {
+		expect(controller).to.be.an('object');
+	});
+	describe('model.controller', () => {
 		
 	});	
 });

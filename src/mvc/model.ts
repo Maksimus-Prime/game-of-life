@@ -24,8 +24,9 @@ export default class Model {
 	}
 	boardInit ():any {
 		let currentCell: Cell;
-		for (let i = 0; i < this.width; i++) {
-			for (let j = 0; j < this.height; j++) {
+		this.board = {};
+		for (let i = 0; i < this.height; i++) {
+			for (let j = 0; j < this.width; j++) {
 				currentCell = {
 					x: i,
 					y: j,
@@ -80,12 +81,47 @@ export default class Model {
 		let key: any;
 		for (key in this.board) {
 			let currentCell: object = this.board[key];
-			console.log(this.getAliveNeighbors(key));
 			let tempCell: object = this.calculateNextState(key);
 			tempBoard[key] = tempCell;
 		}
 
 		this.board = tempBoard;
+	}
+	editLifeState(key: any) {
+		let cellAlive = this.board[key]["alive"];
+		if(cellAlive) {
+			this.board[key]["alive"] = false;
+		}else {
+			this.board[key]["alive"] = true;
+		}
+	}
+	changeWidth(reWidth: number) {
+		var temObj = jQuery.extend(true, {}, this.board);
+		var temWidth = this.width;
+
+		this.width = reWidth;
+		this.boardInit();
+		for (let keyy in this.board ) {
+			for (let key in temObj) {
+				if (keyy == key) {
+					this.board[getCellRepresentation(temObj[keyy]["x"], temObj[keyy]["y"])] = temObj[keyy];
+				}
+			}
+		}
+	}
+	changeHeight(reHeight: number) {
+		var temObj = jQuery.extend(true, {}, this.board);
+		var temHeight = this.height;
+		
+		this.height = reHeight;
+		this.boardInit();
+		for (let keyy in this.board ) {
+			for (let key in temObj) {
+				if (keyy == key) {
+					this.board[getCellRepresentation(temObj[keyy]["x"], temObj[keyy]["y"])] = temObj[keyy];
+				}
+			}
+		}
 	}
 }
 
