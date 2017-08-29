@@ -138,7 +138,7 @@
 	            this.board[key]["alive"] = true;
 	        }
 	    };
-	    Model.prototype.resizeWidth = function (reWidth) {
+	    Model.prototype.changeWidth = function (reWidth) {
 	        var temObj = jQuery.extend(true, {}, this.board);
 	        var temWidth = this.width;
 	        this.width = reWidth;
@@ -151,7 +151,7 @@
 	            }
 	        }
 	    };
-	    Model.prototype.resizeHeight = function (reHeight) {
+	    Model.prototype.changeHeight = function (reHeight) {
 	        var temObj = jQuery.extend(true, {}, this.board);
 	        var temHeight = this.height;
 	        this.height = reHeight;
@@ -11039,7 +11039,7 @@
 	            });
 	            view.widthInput.blur(function () {
 	                if ($(this).val()) {
-	                    model.resizeWidth(+$(this).val());
+	                    model.changeWidth(+$(this).val());
 	                    $('#data').attr('style', 'width: ' + model.width * 20 + 'px');
 	                    view.draw();
 	                    $('.cell').click(function () {
@@ -11051,7 +11051,7 @@
 	            });
 	            view.heigthInput.blur(function () {
 	                if ($(this).val()) {
-	                    model.resizeHeight(+$(this).val());
+	                    model.changeHeight(+$(this).val());
 	                    view.draw();
 	                    $('.cell').click(function () {
 	                        $(this).toggleClass('dead');
