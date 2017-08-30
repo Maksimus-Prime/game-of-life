@@ -63,6 +63,8 @@
 	Object.defineProperty(exports, "__esModule", { value: true });
 	var Model = function () {
 	    function Model(width, height) {
+	        this.boardStates = [];
+	        this.stop = false;
 	        this.board = {};
 	        this.width = width;
 	        this.height = height;
@@ -123,11 +125,34 @@
 	        var currentBoard = this.board;
 	        var tempBoard = {};
 	        var key;
+	        var flag = false;
+	        var flagNum = 0;
 	        for (key in this.board) {
 	            var currentCell = this.board[key];
 	            var tempCell = this.calculateNextState(key);
 	            tempBoard[key] = tempCell;
 	        }
+	        // check 1
+	        for (var i = 0; i < this.boardStates.length; i++) {
+	            if (jsonEqual(this.boardStates[i], tempBoard)) {
+	                flag = true;
+	            }
+	        }
+	        if (flag) {
+	            this.stop = true;
+	            return;
+	        }
+	        // check 2
+	        for (var j in this.board) {
+	            if (this.board[j]["alive"]) {
+	                flagNum++;
+	            }
+	        }
+	        if (flagNum == 0) {
+	            this.stop = true;
+	            return;
+	        }
+	        this.boardStates.push(tempBoard);
 	        this.board = tempBoard;
 	    };
 	    Model.prototype.editLifeState = function (key) {
@@ -178,6 +203,9 @@
 	        }
 	    }
 	    return length;
+	}
+	function jsonEqual(a, b) {
+	    return JSON.stringify(a) === JSON.stringify(b);
 	}
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
@@ -11014,8 +11042,14 @@
 	            });
 	            view.startButton.click(function () {
 	                timer = setInterval(function () {
-	                    model.nextBoardState();
-	                    view.draw();
+	                    if (!model.stop) {
+	                        model.nextBoardState();
+	                        view.draw();
+	                    } else {
+	                        alert('Game is over!');
+	                        clearTimeout(timer);
+	                        model.boardStates = [];
+	                    }
 	                }, 1000);
 	            });
 	            view.pauseButton.click(function () {

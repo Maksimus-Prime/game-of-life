@@ -21,8 +21,14 @@ export default class Controller {
 			});
 			view.startButton.click( function () {
 				timer = setInterval( function () {
-					model.nextBoardState();
-					view.draw();					
+					if (!model.stop) {
+						model.nextBoardState();
+						view.draw();
+					} else {
+						alert('Game is over!');
+						clearTimeout(timer);
+						model.boardStates = [];
+					}
 				}, 1000);
 			});
 			view.pauseButton.click(function () {
@@ -69,7 +75,6 @@ export default class Controller {
 						model.editLifeState(key);
 					});					
 				}
-
 			});
 		});
 	}

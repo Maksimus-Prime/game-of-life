@@ -14,8 +14,10 @@ interface Cell {
 
 export default class Model {
 	board: { [index:string] : object };
+	boardStates: Array<object> = [];
 	width: number;
 	height: number;
+	stop: boolean = false;
 	
 	constructor (width: number, height: number) {
 		this.board = {};
@@ -79,12 +81,34 @@ export default class Model {
 		let currentBoard: object = this.board;
 		let tempBoard = {};
 		let key: any;
+		let flag: boolean = false;
+		let flagNum: number = 0;
 		for (key in this.board) {
 			let currentCell: object = this.board[key];
 			let tempCell: object = this.calculateNextState(key);
 			tempBoard[key] = tempCell;
 		}
-
+		// check 1
+		for (let i = 0; i < this.boardStates.length; i++) {
+			if(jsonEqual(this.boardStates[i], tempBoard)){
+				flag = true;
+			}
+		}
+		if (flag) {
+			this.stop = true;
+			return;
+		}
+		// check 2
+		for (let j in this.board) {
+			if(this.board[j]["alive"]) {
+				flagNum++;
+			}
+		}
+		if (flagNum == 0) {
+			this.stop = true;
+			return;			
+		}
+		this.boardStates.push(tempBoard);
 		this.board = tempBoard;
 	}
 	editLifeState(key: any) {
@@ -137,4 +161,8 @@ function objectLength( object: any):number {
 	    }
 	}
 	return length;
+}
+
+function jsonEqual(a,b) {
+    return JSON.stringify(a) === JSON.stringify(b);
 }
