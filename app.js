@@ -11041,6 +11041,7 @@
 	                model.editLifeState(key);
 	            });
 	            view.startButton.click(function () {
+	                model.stop = false;
 	                timer = setInterval(function () {
 	                    if (!model.stop) {
 	                        model.nextBoardState();

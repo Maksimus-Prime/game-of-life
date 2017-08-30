@@ -20,6 +20,7 @@ export default class Controller {
 				model.editLifeState(key);
 			});
 			view.startButton.click( function () {
+				model.stop = false;
 				timer = setInterval( function () {
 					if (!model.stop) {
 						model.nextBoardState();
