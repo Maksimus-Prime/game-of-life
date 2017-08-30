@@ -20,7 +20,6 @@ export default class Controller {
 				model.editLifeState(key);
 			});
 			view.startButton.click( function () {
-				model.stop = false;
 				timer = setInterval( function () {
 					if (!model.stop) {
 						model.nextBoardState();
@@ -44,13 +43,14 @@ export default class Controller {
 			view.restartButton.click( function () {
 				clearTimeout(timer);
 				model.boardInit();
+				model.stop = false;
 				view.draw();
-
 				$('.cell').click( function () {
 					$(this).toggleClass('dead');
 					let key:any = $(this).attr('id');
 					model.editLifeState(key);
 				});
+				
 			});
 			view.widthInput.blur( function () {
 				if ($(this).val()) {
