@@ -15,9 +15,7 @@ export default class Controller {
 			let timer: any;
 
 			$('.cell').click( function () {
-				$(this).toggleClass('dead');
-				let key:any = $(this).attr('id');
-				model.editLifeState(key);
+				view.toggleCellClass($(this));
 			});
 			view.startButton.click( function () {
 				timer = setInterval( function () {
@@ -35,9 +33,7 @@ export default class Controller {
 				clearTimeout(timer);
 				view.draw();
 				$('.cell').click( function () {
-					$(this).toggleClass('dead');
-					let key:any = $(this).attr('id');
-					model.editLifeState(key);
+					view.toggleCellClass($(this));
 				});
 			});
 			view.restartButton.click( function () {
@@ -46,22 +42,17 @@ export default class Controller {
 				model.stop = false;
 				view.draw();
 				$('.cell').click( function () {
-					$(this).toggleClass('dead');
-					let key:any = $(this).attr('id');
-					model.editLifeState(key);
+					view.toggleCellClass($(this));
 				});
 				
 			});
 			view.widthInput.blur( function () {
 				if ($(this).val()) {
 					model.changeWidth(+$(this).val());
-					$('#data').attr('style','width: '+(model.width * 20)+'px');
 					view.draw();
 
 					$('.cell').click( function () {
-						$(this).toggleClass('dead');
-						let key:any = $(this).attr('id');
-						model.editLifeState(key);
+						view.toggleCellClass($(this));
 					});
 				}
 			});
@@ -71,10 +62,8 @@ export default class Controller {
 					view.draw();
 
 					$('.cell').click( function () {
-						$(this).toggleClass('dead');
-						let key:any = $(this).attr('id');
-						model.editLifeState(key);
-					});					
+						view.toggleCellClass($(this));
+					});	
 				}
 			});
 		});

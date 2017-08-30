@@ -30,7 +30,12 @@ export default class View {
 				$.tmpl('sampleDead', this.model.board[key]).appendTo('#data');
 			}
 		}
-
+		$('#data').attr('style','width: '+(this.model.width * 20)+'px');
+	}
+	toggleCellClass(that) {
+		that.toggleClass('dead');
+		let key:any = that.attr('id');
+		this.model.editLifeState(key);
 	}
 }
 

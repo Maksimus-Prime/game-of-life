@@ -10499,6 +10499,12 @@
 	                $.tmpl('sampleDead', this.model.board[key]).appendTo('#data');
 	            }
 	        }
+	        $('#data').attr('style', 'width: ' + this.model.width * 20 + 'px');
+	    };
+	    View.prototype.toggleCellClass = function (that) {
+	        that.toggleClass('dead');
+	        var key = that.attr('id');
+	        this.model.editLifeState(key);
 	    };
 	    return View;
 	}();
@@ -11036,12 +11042,9 @@
 	            view.draw();
 	            var timer;
 	            $('.cell').click(function () {
-	                $(this).toggleClass('dead');
-	                var key = $(this).attr('id');
-	                model.editLifeState(key);
+	                view.toggleCellClass($(this));
 	            });
 	            view.startButton.click(function () {
-	                model.stop = false;
 	                timer = setInterval(function () {
 	                    if (!model.stop) {
 	                        model.nextBoardState();
@@ -11057,30 +11060,24 @@
 	                clearTimeout(timer);
 	                view.draw();
 	                $('.cell').click(function () {
-	                    $(this).toggleClass('dead');
-	                    var key = $(this).attr('id');
-	                    model.editLifeState(key);
+	                    view.toggleCellClass($(this));
 	                });
 	            });
 	            view.restartButton.click(function () {
 	                clearTimeout(timer);
 	                model.boardInit();
+	                model.stop = false;
 	                view.draw();
 	                $('.cell').click(function () {
-	                    $(this).toggleClass('dead');
-	                    var key = $(this).attr('id');
-	                    model.editLifeState(key);
+	                    view.toggleCellClass($(this));
 	                });
 	            });
 	            view.widthInput.blur(function () {
 	                if ($(this).val()) {
 	                    model.changeWidth(+$(this).val());
-	                    $('#data').attr('style', 'width: ' + model.width * 20 + 'px');
 	                    view.draw();
 	                    $('.cell').click(function () {
-	                        $(this).toggleClass('dead');
-	                        var key = $(this).attr('id');
-	                        model.editLifeState(key);
+	                        view.toggleCellClass($(this));
 	                    });
 	                }
 	            });
@@ -11089,9 +11086,7 @@
 	                    model.changeHeight(+$(this).val());
 	                    view.draw();
 	                    $('.cell').click(function () {
-	                        $(this).toggleClass('dead');
-	                        var key = $(this).attr('id');
-	                        model.editLifeState(key);
+	                        view.toggleCellClass($(this));
 	                    });
 	                }
 	            });
