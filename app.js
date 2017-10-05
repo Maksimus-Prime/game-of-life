@@ -48,8 +48,8 @@
 
 	Object.defineProperty(exports, "__esModule", { value: true });
 	var model_1 = __webpack_require__(1);
-	var view_1 = __webpack_require__(3);
-	var controller_1 = __webpack_require__(6);
+	var view_1 = __webpack_require__(4);
+	var controller_1 = __webpack_require__(7);
 	var model = new model_1.default(5, 5);
 	var view = new view_1.default(model);
 	var controller = new controller_1.default(model, view);
@@ -93,7 +93,7 @@
 	        var currentCell;
 	        for (var i = -1; i < 2; i++) {
 	            for (var j = -1; j < 2; j++) {
-	                if (i === 0 && i == j) {
+	                if (i === 0 && i === j) {
 	                    continue;
 	                }
 	                currentCell = this.getCellAt(getCellRepresentation(x + i, y + j));
@@ -109,13 +109,13 @@
 	        var tempCell = { x: this.board[key]["x"], y: this.board[key]["y"], alive: this.board[key]["alive"] };
 	        var livingNeighbours = this.getAliveNeighbors(key);
 	        if (tempCell["alive"]) {
-	            if (livingNeighbours == 2 || livingNeighbours == 3) {
+	            if (livingNeighbours === 2 || livingNeighbours === 3) {
 	                tempCell["alive"] = true;
 	            } else {
 	                tempCell["alive"] = false;
 	            }
 	        } else {
-	            if (livingNeighbours == 3) {
+	            if (livingNeighbours === 3) {
 	                tempCell["alive"] = true;
 	            }
 	        }
@@ -128,9 +128,11 @@
 	        var flag = false;
 	        var flagNum = 0;
 	        for (key in this.board) {
-	            var currentCell = this.board[key];
-	            var tempCell = this.calculateNextState(key);
-	            tempBoard[key] = tempCell;
+	            if (this.board.hasOwnProperty(key)) {
+	                var currentCell = this.board[key];
+	                var tempCell = this.calculateNextState(key);
+	                tempBoard[key] = tempCell;
+	            }
 	        }
 	        // check 1
 	        for (var i = 0; i < this.boardStates.length; i++) {
@@ -148,7 +150,7 @@
 	                flagNum++;
 	            }
 	        }
-	        if (flagNum == 0) {
+	        if (flagNum === 0) {
 	            this.stop = true;
 	            return;
 	        }
@@ -169,22 +171,29 @@
 	        this.width = reWidth;
 	        this.boardInit();
 	        for (var keyy in this.board) {
-	            for (var key in temObj) {
-	                if (keyy == key) {
-	                    this.board[getCellRepresentation(temObj[keyy]["x"], temObj[keyy]["y"])] = temObj[keyy];
+	            if (this.board.hasOwnProperty(keyy)) {
+	                for (var key in temObj) {
+	                    if (keyy === key) {
+	                        this.board[getCellRepresentation(temObj[keyy]["x"], temObj[keyy]["y"])] = temObj[keyy];
+	                    }
 	                }
 	            }
 	        }
 	    };
 	    Model.prototype.changeHeight = function (reHeight) {
+	        // вот здесь мне нужно подписаться на изменения в controller'e через .on (или подписаться выше, в конструкторе, там так и написать events.on('changeHeight', changeHeight)), и когда у меня изменится что-то в controller'e я сделаю emit('changeHeight', и передам сюда новое значиние высоты), и позже у меня выполнится функция changeView(сюда как раз попадет значение из emit)
+	        console.log(this);
+	        console.log(this.board);
 	        var temObj = jQuery.extend(true, {}, this.board);
 	        var temHeight = this.height;
 	        this.height = reHeight;
 	        this.boardInit();
 	        for (var keyy in this.board) {
-	            for (var key in temObj) {
-	                if (keyy == key) {
-	                    this.board[getCellRepresentation(temObj[keyy]["x"], temObj[keyy]["y"])] = temObj[keyy];
+	            if (this.board.hasOwnProperty(keyy)) {
+	                for (var key in temObj) {
+	                    if (keyy === key) {
+	                        this.board[getCellRepresentation(temObj[keyy]["x"], temObj[keyy]["y"])] = temObj[keyy];
+	                    }
 	                }
 	            }
 	        }
@@ -10470,40 +10479,75 @@
 
 /***/ },
 /* 3 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", { value: true });
+	var events = {
+	    events: {},
+	    on: function on(eventName, fn) {
+	        this.events[eventName] = this.events[eventName] || [];
+	        this.events[eventName].push(fn);
+	    },
+	    off: function off(eventName, fn) {
+	        if (this.events[eventName]) {
+	            for (var i = 0; i < this.events[eventName].length; i++) {
+	                if (this.events[eventName][i] === fn) {
+	                    this.events[eventName].splice(i, 1);
+	                    break;
+	                }
+	            }
+	        }
+	    },
+	    emit: function emit(eventName, data) {
+	        if (this.events[eventName]) {
+	            this.events[eventName].forEach(function (fn) {
+	                fn(data);
+	            });
+	        }
+	    }
+	};
+	exports.events = events;
+
+/***/ },
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
 	Object.defineProperty(exports, "__esModule", { value: true });
 	var $ = __webpack_require__(2);
-	__webpack_require__(4);
 	__webpack_require__(5);
+	__webpack_require__(6);
 	var View = function () {
 	    function View(model) {
 	        this.model = model;
-	        this.startButton = $('#startButton');
-	        this.pauseButton = $('#pauseButton');
-	        this.restartButton = $('#restartButton');
-	        this.widthInput = $('#widthInput');
-	        this.heigthInput = $('#heightInput');
+	        this.startButton = $("#startButton");
+	        this.pauseButton = $("#pauseButton");
+	        this.restartButton = $("#restartButton");
+	        this.widthInput = $("#widthInput");
+	        this.heigthInput = $("#heightInput");
+	        this.emitterTestButton = $("#emitterTestButton");
 	    }
 	    View.prototype.draw = function () {
-	        $('#data').html('');
-	        $.template('sample', '<i class="cell" id="' + 'x' + '${x}' + 'y' + '${y}"></i>');
-	        $.template('sampleDead', '<i class="cell dead" id="' + 'x' + '${x}' + 'y' + '${y}"></i>');
+	        $("#board").html("");
+	        $.template("sample", '<i class="cell" id="' + 'x' + '${x}' + 'y' + '${y}"></i>');
+	        $.template("sampleDead", '<i class="cell dead" id="' + 'x' + '${x}' + 'y' + '${y}"></i>');
 	        var len = objectLength(this.model.board);
 	        for (var key in this.model.board) {
 	            if (this.model.board[key]["alive"]) {
-	                $.tmpl('sample', this.model.board[key]).appendTo('#data');
+	                $.tmpl("sample", this.model.board[key]).appendTo("#board");
 	            } else {
-	                $.tmpl('sampleDead', this.model.board[key]).appendTo('#data');
+	                $.tmpl("sampleDead", this.model.board[key]).appendTo("#board");
 	            }
 	        }
-	        $('#data').attr('style', 'width: ' + this.model.width * 20 + 'px');
+	        $("#board").attr("style", "width: " + this.model.width * 20 + "px");
+	        this.cells = $(".cell");
 	    };
 	    View.prototype.toggleCellClass = function (that) {
-	        that.toggleClass('dead');
-	        var key = that.attr('id');
+	        that.toggleClass("dead");
+	        var key = that.attr("id");
 	        this.model.editLifeState(key);
 	    };
 	    return View;
@@ -10520,13 +10564,13 @@
 	}
 
 /***/ },
-/* 4 */
+/* 5 */
 /***/ function(module, exports) {
 
 	"use strict";
 
 /***/ },
-/* 5 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(jQuery) {"use strict";
@@ -11026,72 +11070,101 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ },
-/* 6 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
 	Object.defineProperty(exports, "__esModule", { value: true });
 	var $ = __webpack_require__(2);
+	var pubsub_1 = __webpack_require__(3);
 	var Controller = function () {
 	    function Controller(model, view) {
+	        var _this = this;
 	        this.model = model;
 	        this.view = view;
-	        model.boardInit();
-	        $(window).ready(function () {
-	            view.draw();
+	        pubsub_1.events.on("restartGame", this.restartGame.bind(this));
+	        pubsub_1.events.on("startGame", this.startGame.bind(this));
+	        pubsub_1.events.on("changeHeight", this.changeHeight.bind(this));
+	        pubsub_1.events.on("changeWidth", this.changeWidth.bind(this));
+	        pubsub_1.events.on("draw", this.draw.bind(this));
+	        pubsub_1.events.on("toggleCellClass", this.toggleCellClass.bind(this));
+	        pubsub_1.events.on("updateCellClickHandler", this.updateCellClickHandler.bind(this));
+	        this.model.boardInit();
+	        window.onload = function () {
+	            pubsub_1.events.emit('draw');
 	            var timer;
-	            $('.cell').click(function () {
-	                view.toggleCellClass($(this));
-	            });
-	            view.startButton.click(function () {
+	            pubsub_1.events.emit('updateCellClickHandler');
+	            _this.view.startButton.click(function () {
 	                timer = setInterval(function () {
-	                    if (!model.stop) {
-	                        model.nextBoardState();
-	                        view.draw();
+	                    if (!_this.model.stop) {
+	                        pubsub_1.events.emit('startGame', true);
 	                    } else {
-	                        alert('Game is over!');
 	                        clearTimeout(timer);
-	                        model.boardStates = [];
+	                        pubsub_1.events.emit('startGame', false);
 	                    }
 	                }, 1000);
 	            });
-	            view.pauseButton.click(function () {
+	            _this.view.pauseButton.click(function () {
 	                clearTimeout(timer);
-	                view.draw();
-	                $('.cell').click(function () {
-	                    view.toggleCellClass($(this));
-	                });
+	                pubsub_1.events.emit('draw');
+	                pubsub_1.events.emit('updateCellClickHandler');
 	            });
-	            view.restartButton.click(function () {
+	            _this.view.restartButton.click(function () {
 	                clearTimeout(timer);
-	                model.boardInit();
-	                model.stop = false;
-	                view.draw();
-	                $('.cell').click(function () {
-	                    view.toggleCellClass($(this));
-	                });
+	                pubsub_1.events.emit('restartGame');
+	                pubsub_1.events.emit('updateCellClickHandler');
 	            });
-	            view.widthInput.blur(function () {
+	            _this.view.widthInput.blur(function () {
 	                if ($(this).val()) {
-	                    model.changeWidth(+$(this).val());
-	                    view.draw();
-	                    $('.cell').click(function () {
-	                        view.toggleCellClass($(this));
-	                    });
+	                    var newWidth = +$(this).val();
+	                    pubsub_1.events.emit('changeWidth', newWidth);
 	                }
+	                pubsub_1.events.emit('updateCellClickHandler');
 	            });
-	            view.heigthInput.blur(function () {
+	            _this.view.heigthInput.blur(function () {
 	                if ($(this).val()) {
-	                    model.changeHeight(+$(this).val());
-	                    view.draw();
-	                    $('.cell').click(function () {
-	                        view.toggleCellClass($(this));
-	                    });
+	                    var newHeight = +$(this).val();
+	                    pubsub_1.events.emit('changeHeight', newHeight);
 	                }
+	                pubsub_1.events.emit('updateCellClickHandler');
 	            });
-	        });
+	        };
 	    }
+	    Controller.prototype.draw = function () {
+	        this.view.draw();
+	    };
+	    Controller.prototype.toggleCellClass = function (cell) {
+	        this.view.toggleCellClass(cell);
+	    };
+	    Controller.prototype.startGame = function (start) {
+	        if (start) {
+	            this.model.nextBoardState();
+	            this.view.draw();
+	        } else {
+	            alert("Game is over!");
+	            this.model.boardStates = [];
+	        }
+	    };
+	    Controller.prototype.restartGame = function () {
+	        this.model.boardInit();
+	        this.model.stop = false;
+	        this.view.draw();
+	    };
+	    Controller.prototype.changeHeight = function (newHeight) {
+	        this.model.changeHeight(newHeight);
+	        this.view.draw();
+	    };
+	    Controller.prototype.changeWidth = function (newWidth) {
+	        this.model.changeWidth(newWidth);
+	        this.view.draw();
+	    };
+	    Controller.prototype.updateCellClickHandler = function () {
+	        this.view.cells.on("click", function () {
+	            var cell = $(this);
+	            pubsub_1.events.emit('toggleCellClass', cell);
+	        });
+	    };
 	    return Controller;
 	}();
 	exports.default = Controller;
