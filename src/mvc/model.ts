@@ -9,12 +9,13 @@ export default class Model {
     boardStates: object[] = [];
     width: number;
     height: number;
-    stop: boolean = false;
+    stop: boolean;
     
     constructor (width: number, height: number) {
         this.board = {};
         this.width = width;
         this.height = height;
+        this.stop = true;
     }
     boardInit (): void {
         let currentCell: ICell;
@@ -89,7 +90,7 @@ export default class Model {
             }
         }
         if (flag) {
-            this.stop = true;
+            this.stop = false;
             return;
         }
         // check 2
@@ -99,13 +100,13 @@ export default class Model {
             }
         }
         if (flagNum === 0) {
-            this.stop = true;
+            this.stop = false;
             return;         
         }
         this.boardStates.push(tempBoard);
         this.board = tempBoard;
     }
-    editLifeState(key: any) {
+    editLifeState(key: string):void {
         let cellAlive = this.board[key]["alive"];
         if (cellAlive) {
             this.board[key]["alive"] = false;
@@ -113,11 +114,11 @@ export default class Model {
             this.board[key]["alive"] = true;
         }
     }
-    changeWidth(reWidth: number) {
+    changeWidth(newWidth: number) {
         var temObj = jQuery.extend(true, {}, this.board);
         var temWidth = this.width;
 
-        this.width = reWidth;
+        this.width = newWidth;
         this.boardInit();
         for (let keyy in this.board ) {
             if (this.board.hasOwnProperty(keyy)) {
@@ -130,14 +131,11 @@ export default class Model {
 
         }
     }
-    changeHeight(reHeight: number) {
-        // вот здесь мне нужно подписаться на изменения в controller'e через .on (или подписаться выше, в конструкторе, там так и написать events.on('changeHeight', changeHeight)), и когда у меня изменится что-то в controller'e я сделаю emit('changeHeight', и передам сюда новое значиние высоты), и позже у меня выполнится функция changeView(сюда как раз попадет значение из emit)
-        console.log(this);
-        console.log(this.board);
+    changeHeight(newHeight: number) {
         var temObj = jQuery.extend(true, {}, this.board);
         var temHeight = this.height;
         
-        this.height = reHeight;
+        this.height = newHeight;
         this.boardInit();
         for (let keyy in this.board ) {
             if (this.board.hasOwnProperty(keyy)) {

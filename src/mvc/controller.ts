@@ -1,96 +1,60 @@
 import * as $ from "jquery";
-import {events} from "./pubsub";
 
 export default class Controller {
     public model: any;
     public view: any;
+    timer;
     constructor(model: any, view: any) {
+        let self = this;
         this.model = model;
         this.view = view;
-        events.on("restartGame", this.restartGame.bind(this));
-        events.on("startGame", this.startGame.bind(this));
-        events.on("changeHeight", this.changeHeight.bind(this));
-        events.on("changeWidth", this.changeWidth.bind(this));
-        events.on("draw", this.draw.bind(this));
-        events.on("toggleCellClass", this.toggleCellClass.bind(this));
-        events.on("updateCellClickHandler", this.updateCellClickHandler.bind(this));
-        
-        this.model.boardInit();
+        this.view.subscribe('startGame', this.startGame.bind(this));
+        this.view.subscribe('pauseGame', this.pauseGame.bind(this));
+        this.view.subscribe('restartGame', this.restartGame.bind(this));
+        this.view.subscribe('changeWidth', this.changeWidth.bind(this));
+        this.view.subscribe('changeHeight', this.changeHeight.bind(this));
+        this.view.subscribe('cellClicked', this.cellClicked.bind(this));
 
         window.onload = () => {
-            events.emit('draw');
-            let timer: any;
-
-            events.emit('updateCellClickHandler');
-
-            this.view.startButton.click( () => {
-                timer = setInterval( () => {
-                    if (!this.model.stop) {
-                        events.emit('startGame', true);
-                    } else {
-                        clearTimeout(timer);
-                        events.emit('startGame', false);
-                    }
-                }, 1000);
-            });
-            this.view.pauseButton.click( () => {
-                clearTimeout(timer);
-                events.emit('draw');
-                events.emit('updateCellClickHandler');
-            });
-            this.view.restartButton.click( () => {
-                clearTimeout(timer);
-                events.emit('restartGame');
-                events.emit('updateCellClickHandler');
-            });
-            this.view.widthInput.blur( function() {
-                if ($(this).val()) {
-                    let newWidth = +$(this).val();
-                    events.emit('changeWidth', newWidth);
-                }
-                events.emit('updateCellClickHandler');
-            });
-            this.view.heigthInput.blur( function() {
-                if ($(this).val()) {
-                    let newHeight = +$(this).val();
-                    events.emit('changeHeight', newHeight);
-                }
-                events.emit('updateCellClickHandler');
-            });
+            this.model.boardInit();
+            this.view.draw(this.model);
         };
     }
-    draw() {
-        this.view.draw();
+    toggleCellClass(model, cell: HTMLElement):void {
+        this.view.toggleCellClass(model, cell);
     }
-    toggleCellClass(cell) {
-        this.view.toggleCellClass(cell);
+    startGame():void {
+        this.timer = setInterval( () => {
+            if (this.model.stop) {
+                this.model.nextBoardState();
+                this.view.draw(this.model);
+            } else {
+                alert('Game is over!');
+                clearTimeout(this.timer);
+                this.model.boardStates = [];
+            }
+        }, 1000);
     }
-    startGame(start) {
-        if(start) {
-            this.model.nextBoardState();
-            this.view.draw();            
-        }else {
-            alert("Game is over!");
-            this.model.boardStates = [];      
-        }
+    pauseGame():void {
+        clearTimeout(this.timer);
+        this.model.stop = true;
+        this.view.draw(this.model);
     }
-    restartGame() {
+    restartGame():void {
+        clearTimeout(this.timer);
         this.model.boardInit();
-        this.model.stop = false;
-        this.view.draw();
+        this.model.stop = true;
+        this.view.draw(this.model);
     }
-    changeHeight(newHeight) {
+    changeHeight(newHeight: number):void {
         this.model.changeHeight(newHeight);
-        this.view.draw();
+        this.view.draw(this.model);
     }
-    changeWidth(newWidth) {
+    changeWidth(newWidth: number):void {
         this.model.changeWidth(newWidth);
-        this.view.draw();
+        this.view.draw(this.model);
     }
-    updateCellClickHandler() {
-        this.view.cells.on("click", function () {
-            let cell = $(this);
-            events.emit('toggleCellClass', cell);
-        });
+    cellClicked(cellKey: string):void {
+        this.model.editLifeState(cellKey);
     }
 }
