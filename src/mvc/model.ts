@@ -5,17 +5,17 @@ interface ICell {
 }
 
 export default class Model {
-    board: { [index: string]: object };
-    boardStates: object[] = [];
-    width: number;
-    height: number;
-    stop: boolean;
+    public board: { [index: string]: object };
+    public boardStates: object[] = [];
+    public width: number;
+    public height: number;
+    public stopGame: boolean;
     
     constructor (width: number, height: number) {
         this.board = {};
         this.width = width;
         this.height = height;
-        this.stop = true;
+        this.stopGame = false;
     }
     boardInit (): void {
         let currentCell: ICell;
@@ -52,7 +52,7 @@ export default class Model {
         }
         return alive;
     }
-    calculateNextState (key: string): object {
+    calculateNextCellState (key: string): object {
         let cell: object = this.board[key];
         let tempCell: object = {x: this.board[key]["x"], y: this.board[key]["y"], alive: this.board[key]["alive"]};
         let livingNeighbours: number = this.getAliveNeighbors(key);
@@ -79,7 +79,7 @@ export default class Model {
         for (key in this.board) {
             if (this.board.hasOwnProperty(key)) {
                 let currentCell: object = this.board[key];
-                let tempCell: object = this.calculateNextState(key);
+                let tempCell: object = this.calculateNextCellState(key);
                 tempBoard[key] = tempCell;              
             }
         }
@@ -90,7 +90,7 @@ export default class Model {
             }
         }
         if (flag) {
-            this.stop = false;
+            this.stopGame = true;
             return;
         }
         // check 2
@@ -100,13 +100,13 @@ export default class Model {
             }
         }
         if (flagNum === 0) {
-            this.stop = false;
+            this.stopGame = true;
             return;         
         }
         this.boardStates.push(tempBoard);
         this.board = tempBoard;
     }
-    editLifeState(key: string):void {
+    editCellAliveState(key: string):void {
         let cellAlive = this.board[key]["alive"];
         if (cellAlive) {
             this.board[key]["alive"] = false;
@@ -128,7 +128,6 @@ export default class Model {
                     }
                 }
             }
-
         }
     }
     changeHeight(newHeight: number) {
@@ -145,8 +144,36 @@ export default class Model {
                     }
                 }
             }
-
         }
+    }
+    changeStopGame(stopGame: boolean) {
+        this.stopGame = stopGame;
+    }
+    isGameStop() {
+        return this.stopGame;
+    }
+    getCurrentBoard() {
+        return this.board;
+    }
+    getBoardWidth() {
+        return this.width;
+    }
+    clearBoard() {
+        this.boardStates = [];
+    }
+    getModelFacade() {
+        return {
+            boardInit: this.boardInit.bind(this),
+            nextBoardState: this.nextBoardState.bind(this),
+            editCellAliveState: this.editCellAliveState.bind(this),
+            changeWidth: this.changeWidth.bind(this),
+            changeHeight: this.changeHeight.bind(this),
+            changeStopGame: this.changeStopGame.bind(this),
+            isGameStop: this.isGameStop.bind(this),
+            getCurrentBoard: this.getCurrentBoard.bind(this),
+            getBoardWidth: this.getBoardWidth.bind(this),
+            clearBoard: this.clearBoard.bind(this)
+        };
     }
 }
 

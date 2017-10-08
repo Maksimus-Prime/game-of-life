@@ -8,17 +8,17 @@ export default class View {
     $restartButton: HTMLButtonElement;
     $widthInput: HTMLInputElement;
     $heightInput: HTMLInputElement;
-    $cells: HTMLCollection;
+    $cells: NodeListOf<Element>;
     pubsub: object;
     updateCellClickHandlers: VoidFunction;
     constructor() {
         let self = this;
         this.pubsub = {};
-        this.$startButton = $("#startButton")[0];
-        this.$pauseButton = $("#pauseButton")[0];
-        this.$restartButton = $("#restartButton")[0];
-        this.$widthInput = $("#widthInput")[0];
-        this.$heightInput = $("#heightInput")[0];
+        this.$startButton = <HTMLButtonElement>$("#startButton")[0];
+        this.$pauseButton = <HTMLButtonElement>$("#pauseButton")[0];
+        this.$restartButton = <HTMLButtonElement>$("#restartButton")[0];
+        this.$widthInput = <HTMLInputElement>$("#widthInput")[0];
+        this.$heightInput = <HTMLInputElement>$("#heightInput")[0];
         
         $(this.$startButton).on('click', function () {
             self.publish('startGame');
@@ -43,19 +43,19 @@ export default class View {
             });
         }
     }
-    draw(model):void {
+    draw(board: object, boardWidth: number):void {
         $("#board").html("");
         $.template("sample", '<i class="cell" id="' + 'x' + '${x}' + 'y' + '${y}"></i>');
         $.template("sampleDead", '<i class="cell dead" id="' + 'x' + '${x}' + 'y' + '${y}"></i>');
-        let len: number = objectLength(model.board);
-        for ( let key in model.board ) {
-            if (model.board[key]["alive"]) {
-                $.tmpl("sample", model.board[key]).appendTo("#board");
+        let len: number = objectLength(board);
+        for ( let key in board ) {
+            if (board[key]["alive"]) {
+                $.tmpl("sample", board[key]).appendTo("#board");
             } else {
-                $.tmpl("sampleDead", model.board[key]).appendTo("#board");
+                $.tmpl("sampleDead", board[key]).appendTo("#board");
             }
         }
-        $("#board").attr("style", "width: " + (model.width * 20) + "px");
+        $("#board").attr("style", "width: " + (boardWidth * 20) + "px");
         this.updateCellClickHandlers();
     }
     toggleCellClass(cell: HTMLHtmlElement):string {
@@ -83,6 +83,14 @@ export default class View {
                 fn(data);
             });
         }
+    }
+    getViewFacade() {
+        return {
+            draw: this.draw.bind(this),
+            toggleCellClass: this.toggleCellClass.bind(this),
+            subscribe: this.subscribe.bind(this),
+            unsubscribe: this.unsubscribe.bind(this)
+        };
     }
 }
 

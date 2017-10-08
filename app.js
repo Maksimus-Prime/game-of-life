@@ -50,9 +50,7 @@
 	var model_1 = __webpack_require__(1);
 	var view_1 = __webpack_require__(3);
 	var controller_1 = __webpack_require__(6);
-	var model = new model_1.default(5, 5);
-	var view = new view_1.default();
-	var controller = new controller_1.default(model, view);
+	var controller = new controller_1.default(model_1.default, view_1.default);
 
 /***/ },
 /* 1 */
@@ -67,7 +65,7 @@
 	        this.board = {};
 	        this.width = width;
 	        this.height = height;
-	        this.stop = true;
+	        this.stopGame = false;
 	    }
 	    Model.prototype.boardInit = function () {
 	        var currentCell;
@@ -104,7 +102,7 @@
 	        }
 	        return alive;
 	    };
-	    Model.prototype.calculateNextState = function (key) {
+	    Model.prototype.calculateNextCellState = function (key) {
 	        var cell = this.board[key];
 	        var tempCell = { x: this.board[key]["x"], y: this.board[key]["y"], alive: this.board[key]["alive"] };
 	        var livingNeighbours = this.getAliveNeighbors(key);
@@ -130,7 +128,7 @@
 	        for (key in this.board) {
 	            if (this.board.hasOwnProperty(key)) {
 	                var currentCell = this.board[key];
-	                var tempCell = this.calculateNextState(key);
+	                var tempCell = this.calculateNextCellState(key);
 	                tempBoard[key] = tempCell;
 	            }
 	        }
@@ -141,7 +139,7 @@
 	            }
 	        }
 	        if (flag) {
-	            this.stop = false;
+	            this.stopGame = true;
 	            return;
 	        }
 	        // check 2
@@ -151,13 +149,13 @@
 	            }
 	        }
 	        if (flagNum === 0) {
-	            this.stop = false;
+	            this.stopGame = true;
 	            return;
 	        }
 	        this.boardStates.push(tempBoard);
 	        this.board = tempBoard;
 	    };
-	    Model.prototype.editLifeState = function (key) {
+	    Model.prototype.editCellAliveState = function (key) {
 	        var cellAlive = this.board[key]["alive"];
 	        if (cellAlive) {
 	            this.board[key]["alive"] = false;
@@ -194,6 +192,35 @@
 	                }
 	            }
 	        }
+	    };
+	    Model.prototype.changeStopGame = function (stopGame) {
+	        this.stopGame = stopGame;
+	    };
+	    Model.prototype.isGameStop = function () {
+	        return this.stopGame;
+	    };
+	    Model.prototype.getCurrentBoard = function () {
+	        return this.board;
+	    };
+	    Model.prototype.getBoardWidth = function () {
+	        return this.width;
+	    };
+	    Model.prototype.clearBoard = function () {
+	        this.boardStates = [];
+	    };
+	    Model.prototype.getModelFacade = function () {
+	        return {
+	            boardInit: this.boardInit.bind(this),
+	            nextBoardState: this.nextBoardState.bind(this),
+	            editCellAliveState: this.editCellAliveState.bind(this),
+	            changeWidth: this.changeWidth.bind(this),
+	            changeHeight: this.changeHeight.bind(this),
+	            changeStopGame: this.changeStopGame.bind(this),
+	            isGameStop: this.isGameStop.bind(this),
+	            getCurrentBoard: this.getCurrentBoard.bind(this),
+	            getBoardWidth: this.getBoardWidth.bind(this),
+	            clearBoard: this.clearBoard.bind(this)
+	        };
 	    };
 	    return Model;
 	}();
@@ -10516,19 +10543,19 @@
 	            });
 	        };
 	    }
-	    View.prototype.draw = function (model) {
+	    View.prototype.draw = function (board, boardWidth) {
 	        $("#board").html("");
 	        $.template("sample", '<i class="cell" id="' + 'x' + '${x}' + 'y' + '${y}"></i>');
 	        $.template("sampleDead", '<i class="cell dead" id="' + 'x' + '${x}' + 'y' + '${y}"></i>');
-	        var len = objectLength(model.board);
-	        for (var key in model.board) {
-	            if (model.board[key]["alive"]) {
-	                $.tmpl("sample", model.board[key]).appendTo("#board");
+	        var len = objectLength(board);
+	        for (var key in board) {
+	            if (board[key]["alive"]) {
+	                $.tmpl("sample", board[key]).appendTo("#board");
 	            } else {
-	                $.tmpl("sampleDead", model.board[key]).appendTo("#board");
+	                $.tmpl("sampleDead", board[key]).appendTo("#board");
 	            }
 	        }
-	        $("#board").attr("style", "width: " + model.width * 20 + "px");
+	        $("#board").attr("style", "width: " + boardWidth * 20 + "px");
 	        this.updateCellClickHandlers();
 	    };
 	    View.prototype.toggleCellClass = function (cell) {
@@ -10556,6 +10583,14 @@
 	                fn(data);
 	            });
 	        }
+	    };
+	    View.prototype.getViewFacade = function () {
+	        return {
+	            draw: this.draw.bind(this),
+	            toggleCellClass: this.toggleCellClass.bind(this),
+	            subscribe: this.subscribe.bind(this),
+	            unsubscribe: this.unsubscribe.bind(this)
+	        };
 	    };
 	    return View;
 	}();
@@ -11084,59 +11119,70 @@
 
 	Object.defineProperty(exports, "__esModule", { value: true });
 	var Controller = function () {
-	    function Controller(model, view) {
+	    function Controller(Model, View) {
 	        var _this = this;
-	        var self = this;
-	        this.model = model;
-	        this.view = view;
-	        this.view.subscribe('startGame', this.startGame.bind(this));
-	        this.view.subscribe('pauseGame', this.pauseGame.bind(this));
-	        this.view.subscribe('restartGame', this.restartGame.bind(this));
-	        this.view.subscribe('changeWidth', this.changeWidth.bind(this));
-	        this.view.subscribe('changeHeight', this.changeHeight.bind(this));
-	        this.view.subscribe('cellClicked', this.cellClicked.bind(this));
+	        this.modelFacade = new Model(5, 5).getModelFacade();
+	        this.viewFacade = new View().getViewFacade();
+	        this.viewFacade.subscribe('startGame', this.startGame.bind(this));
+	        this.viewFacade.subscribe('pauseGame', this.pauseGame.bind(this));
+	        this.viewFacade.subscribe('restartGame', this.restartGame.bind(this));
+	        this.viewFacade.subscribe('changeWidth', this.changeWidth.bind(this));
+	        this.viewFacade.subscribe('changeHeight', this.changeHeight.bind(this));
+	        this.viewFacade.subscribe('cellClicked', this.cellClicked.bind(this));
 	        window.onload = function () {
-	            _this.model.boardInit();
-	            _this.view.draw(_this.model);
+	            _this.modelFacade.boardInit();
+	            var currentBoard = _this.modelFacade.getCurrentBoard();
+	            var boardWidth = _this.modelFacade.getBoardWidth();
+	            _this.viewFacade.draw(currentBoard, boardWidth);
 	        };
 	    }
-	    Controller.prototype.toggleCellClass = function (model, cell) {
-	        this.view.toggleCellClass(model, cell);
-	    };
 	    Controller.prototype.startGame = function () {
 	        var _this = this;
 	        this.timer = setInterval(function () {
-	            if (_this.model.stop) {
-	                _this.model.nextBoardState();
-	                _this.view.draw(_this.model);
+	            var gameStopStatus = _this.modelFacade.isGameStop();
+	            if (!gameStopStatus) {
+	                _this.modelFacade.changeStopGame(false);
+	                _this.modelFacade.nextBoardState();
+	                var currentBoard = _this.modelFacade.getCurrentBoard();
+	                var boardWidth = _this.modelFacade.getBoardWidth();
+	                _this.viewFacade.draw(currentBoard, boardWidth);
 	            } else {
 	                alert('Game is over!');
 	                clearTimeout(_this.timer);
-	                _this.model.boardStates = [];
+	                _this.modelFacade.changeStopGame(true);
+	                _this.modelFacade.clearBoard();
 	            }
 	        }, 1000);
 	    };
 	    Controller.prototype.pauseGame = function () {
 	        clearTimeout(this.timer);
-	        this.model.stop = true;
-	        this.view.draw(this.model);
+	        var currentBoard = this.modelFacade.getCurrentBoard();
+	        var boardWidth = this.modelFacade.getBoardWidth();
+	        this.viewFacade.draw(currentBoard, boardWidth);
 	    };
 	    Controller.prototype.restartGame = function () {
 	        clearTimeout(this.timer);
-	        this.model.boardInit();
-	        this.model.stop = true;
-	        this.view.draw(this.model);
+	        this.modelFacade.boardInit();
+	        this.modelFacade.clearBoard();
+	        this.modelFacade.changeStopGame(false);
+	        var currentBoard = this.modelFacade.getCurrentBoard();
+	        var boardWidth = this.modelFacade.getBoardWidth();
+	        this.viewFacade.draw(currentBoard, boardWidth);
 	    };
 	    Controller.prototype.changeHeight = function (newHeight) {
-	        this.model.changeHeight(newHeight);
-	        this.view.draw(this.model);
+	        this.modelFacade.changeHeight(newHeight);
+	        var currentBoard = this.modelFacade.getCurrentBoard();
+	        var boardWidth = this.modelFacade.getBoardWidth();
+	        this.viewFacade.draw(currentBoard, boardWidth);
 	    };
 	    Controller.prototype.changeWidth = function (newWidth) {
-	        this.model.changeWidth(newWidth);
-	        this.view.draw(this.model);
+	        this.modelFacade.changeWidth(newWidth);
+	        var currentBoard = this.modelFacade.getCurrentBoard();
+	        var boardWidth = this.modelFacade.getBoardWidth();
+	        this.viewFacade.draw(currentBoard, boardWidth);
 	    };
 	    Controller.prototype.cellClicked = function (cellKey) {
-	        this.model.editLifeState(cellKey);
+	        this.modelFacade.editCellAliveState(cellKey);
 	    };
 	    return Controller;
 	}();

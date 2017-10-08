@@ -1,60 +1,71 @@
 import * as $ from "jquery";
 
 export default class Controller {
-    public model: any;
-    public view: any;
+    public modelFacade: any;
+    public viewFacade: any;
     timer;
-    constructor(model: any, view: any) {
-        let self = this;
-        this.model = model;
-        this.view = view;
-        this.view.subscribe('startGame', this.startGame.bind(this));
-        this.view.subscribe('pauseGame', this.pauseGame.bind(this));
-        this.view.subscribe('restartGame', this.restartGame.bind(this));
-        this.view.subscribe('changeWidth', this.changeWidth.bind(this));
-        this.view.subscribe('changeHeight', this.changeHeight.bind(this));
-        this.view.subscribe('cellClicked', this.cellClicked.bind(this));
+    constructor(Model: any, View: any) {
+        this.modelFacade = (new Model(5,5)).getModelFacade();
+        this.viewFacade = (new View()).getViewFacade();
+        this.viewFacade.subscribe('startGame', this.startGame.bind(this));
+        this.viewFacade.subscribe('pauseGame', this.pauseGame.bind(this));
+        this.viewFacade.subscribe('restartGame', this.restartGame.bind(this));
+        this.viewFacade.subscribe('changeWidth', this.changeWidth.bind(this));
+        this.viewFacade.subscribe('changeHeight', this.changeHeight.bind(this));
+        this.viewFacade.subscribe('cellClicked', this.cellClicked.bind(this));
 
         window.onload = () => {
-            this.model.boardInit();
-            this.view.draw(this.model);
+            this.modelFacade.boardInit();
+            let currentBoard = this.modelFacade.getCurrentBoard();
+            let boardWidth = this.modelFacade.getBoardWidth();
+            this.viewFacade.draw(currentBoard, boardWidth);
         };
-    }
-    toggleCellClass(model, cell: HTMLElement):void {
-        this.view.toggleCellClass(model, cell);
     }
     startGame():void {
         this.timer = setInterval( () => {
-            if (this.model.stop) {
-                this.model.nextBoardState();
-                this.view.draw(this.model);
+            let gameStopStatus = this.modelFacade.isGameStop();
+            if (!gameStopStatus) {
+                this.modelFacade.changeStopGame(false);
+                this.modelFacade.nextBoardState();
+                let currentBoard = this.modelFacade.getCurrentBoard();
+                let boardWidth = this.modelFacade.getBoardWidth();
+                this.viewFacade.draw(currentBoard, boardWidth);
             } else {
                 alert('Game is over!');
                 clearTimeout(this.timer);
-                this.model.boardStates = [];
+                this.modelFacade.changeStopGame(true);
+                this.modelFacade.clearBoard();
             }
         }, 1000);
     }
     pauseGame():void {
         clearTimeout(this.timer);
-        this.model.stop = true;
-        this.view.draw(this.model);
+        let currentBoard = this.modelFacade.getCurrentBoard();
+        let boardWidth = this.modelFacade.getBoardWidth();
+        this.viewFacade.draw(currentBoard, boardWidth);
     }
     restartGame():void {
         clearTimeout(this.timer);
-        this.model.boardInit();
-        this.model.stop = true;
-        this.view.draw(this.model);
+        this.modelFacade.boardInit();
+        this.modelFacade.clearBoard();
+        this.modelFacade.changeStopGame(false);
+        let currentBoard = this.modelFacade.getCurrentBoard();
+        let boardWidth = this.modelFacade.getBoardWidth();
+        this.viewFacade.draw(currentBoard, boardWidth);
     }
     changeHeight(newHeight: number):void {
-        this.model.changeHeight(newHeight);
-        this.view.draw(this.model);
+        this.modelFacade.changeHeight(newHeight);
+        let currentBoard = this.modelFacade.getCurrentBoard();
+        let boardWidth = this.modelFacade.getBoardWidth();
+        this.viewFacade.draw(currentBoard, boardWidth);
     }
     changeWidth(newWidth: number):void {
-        this.model.changeWidth(newWidth);
-        this.view.draw(this.model);
+        this.modelFacade.changeWidth(newWidth);
+        let currentBoard = this.modelFacade.getCurrentBoard();
+        let boardWidth = this.modelFacade.getBoardWidth();
+        this.viewFacade.draw(currentBoard, boardWidth);
     }
     cellClicked(cellKey: string):void {
-        this.model.editLifeState(cellKey);
+        this.modelFacade.editCellAliveState(cellKey);
     }
 }
