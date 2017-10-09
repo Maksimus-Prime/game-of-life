@@ -50,7 +50,15 @@
 	var model_1 = __webpack_require__(1);
 	var view_1 = __webpack_require__(3);
 	var controller_1 = __webpack_require__(6);
-	var controller = new controller_1.default(model_1.default, view_1.default);
+	var $ = __webpack_require__(2);
+	$(document).ready(function () {
+	    var model = new model_1.default(5, 5).getModelFacade();
+	    var view = new view_1.default().getViewFacade();
+	    var controller = new controller_1.default();
+	    controller.setModel(model);
+	    controller.setView(view);
+	    controller.init();
+	});
 
 /***/ },
 /* 1 */
@@ -10535,6 +10543,9 @@
 	        $(this.$heightInput).on('blur', function () {
 	            self.publish('changeHeight', this.value);
 	        });
+	        $(window).on('load', function () {
+	            self.publish('windowLoaded');
+	        });
 	        this.updateCellClickHandlers = function () {
 	            this.$cells = $(".cell");
 	            $(this.$cells).on('click', function () {
@@ -10562,6 +10573,11 @@
 	        $(cell).toggleClass("dead");
 	        var key = $(cell).attr("id");
 	        return key;
+	    };
+	    View.prototype.addPublisher = function (el, eventType, eventName, param) {
+	        $(el).on(eventType, function () {
+	            self.publish();
+	        });
 	    };
 	    View.prototype.subscribe = function (eventName, fn) {
 	        this.pubsub[eventName] = this.pubsub[eventName] || [];
@@ -11119,70 +11135,77 @@
 
 	Object.defineProperty(exports, "__esModule", { value: true });
 	var Controller = function () {
-	    function Controller(Model, View) {
-	        var _this = this;
-	        this.modelFacade = new Model(5, 5).getModelFacade();
-	        this.viewFacade = new View().getViewFacade();
-	        this.viewFacade.subscribe('startGame', this.startGame.bind(this));
-	        this.viewFacade.subscribe('pauseGame', this.pauseGame.bind(this));
-	        this.viewFacade.subscribe('restartGame', this.restartGame.bind(this));
-	        this.viewFacade.subscribe('changeWidth', this.changeWidth.bind(this));
-	        this.viewFacade.subscribe('changeHeight', this.changeHeight.bind(this));
-	        this.viewFacade.subscribe('cellClicked', this.cellClicked.bind(this));
-	        window.onload = function () {
-	            _this.modelFacade.boardInit();
-	            var currentBoard = _this.modelFacade.getCurrentBoard();
-	            var boardWidth = _this.modelFacade.getBoardWidth();
-	            _this.viewFacade.draw(currentBoard, boardWidth);
-	        };
-	    }
+	    function Controller() {}
+	    Controller.prototype.init = function () {
+	        console.log(this.view, this.model);
+	        this.initGame();
+	        this.view.subscribe('startGame', this.startGame.bind(this));
+	        this.view.subscribe('pauseGame', this.pauseGame.bind(this));
+	        this.view.subscribe('restartGame', this.restartGame.bind(this));
+	        this.view.subscribe('changeWidth', this.changeWidth.bind(this));
+	        this.view.subscribe('changeHeight', this.changeHeight.bind(this));
+	        this.view.subscribe('cellClicked', this.cellClicked.bind(this));
+	    };
+	    Controller.prototype.initGame = function () {
+	        console.log('I was fired!');
+	        this.model.boardInit();
+	        var currentBoard = this.model.getCurrentBoard();
+	        var boardWidth = this.model.getBoardWidth();
+	        this.view.draw(currentBoard, boardWidth);
+	    };
 	    Controller.prototype.startGame = function () {
 	        var _this = this;
 	        this.timer = setInterval(function () {
-	            var gameStopStatus = _this.modelFacade.isGameStop();
+	            var gameStopStatus = _this.model.isGameStop();
 	            if (!gameStopStatus) {
-	                _this.modelFacade.changeStopGame(false);
-	                _this.modelFacade.nextBoardState();
-	                var currentBoard = _this.modelFacade.getCurrentBoard();
-	                var boardWidth = _this.modelFacade.getBoardWidth();
-	                _this.viewFacade.draw(currentBoard, boardWidth);
+	                _this.model.changeStopGame(false);
+	                _this.model.nextBoardState();
+	                var currentBoard = _this.model.getCurrentBoard();
+	                var boardWidth = _this.model.getBoardWidth();
+	                _this.view.draw(currentBoard, boardWidth);
 	            } else {
 	                alert('Game is over!');
 	                clearTimeout(_this.timer);
-	                _this.modelFacade.changeStopGame(true);
-	                _this.modelFacade.clearBoard();
+	                _this.model.changeStopGame(true);
+	                _this.model.clearBoard();
 	            }
 	        }, 1000);
 	    };
 	    Controller.prototype.pauseGame = function () {
 	        clearTimeout(this.timer);
-	        var currentBoard = this.modelFacade.getCurrentBoard();
-	        var boardWidth = this.modelFacade.getBoardWidth();
-	        this.viewFacade.draw(currentBoard, boardWidth);
+	        var currentBoard = this.model.getCurrentBoard();
+	        var boardWidth = this.model.getBoardWidth();
+	        this.view.draw(currentBoard, boardWidth);
 	    };
 	    Controller.prototype.restartGame = function () {
 	        clearTimeout(this.timer);
-	        this.modelFacade.boardInit();
-	        this.modelFacade.clearBoard();
-	        this.modelFacade.changeStopGame(false);
-	        var currentBoard = this.modelFacade.getCurrentBoard();
-	        var boardWidth = this.modelFacade.getBoardWidth();
-	        this.viewFacade.draw(currentBoard, boardWidth);
+	        this.model.boardInit();
+	        this.model.clearBoard();
+	        this.model.changeStopGame(false);
+	        var currentBoard = this.model.getCurrentBoard();
+	        var boardWidth = this.model.getBoardWidth();
+	        this.view.draw(currentBoard, boardWidth);
 	    };
 	    Controller.prototype.changeHeight = function (newHeight) {
-	        this.modelFacade.changeHeight(newHeight);
-	        var currentBoard = this.modelFacade.getCurrentBoard();
-	        var boardWidth = this.modelFacade.getBoardWidth();
-	        this.viewFacade.draw(currentBoard, boardWidth);
+	        this.model.changeHeight(newHeight);
+	        var currentBoard = this.model.getCurrentBoard();
+	        var boardWidth = this.model.getBoardWidth();
+	        this.view.draw(currentBoard, boardWidth);
 	    };
 	    Controller.prototype.changeWidth = function (newWidth) {
-	        this.modelFacade.changeWidth(newWidth);
-	        var currentBoard = this.modelFacade.getCurrentBoard();
-	        var boardWidth = this.modelFacade.getBoardWidth();
-	        this.viewFacade.draw(currentBoard, boardWidth);
+	        this.model.changeWidth(newWidth);
+	        var currentBoard = this.model.getCurrentBoard();
+	        var boardWidth = this.model.getBoardWidth();
+	        this.view.draw(currentBoard, boardWidth);
 	    };
 	    Controller.prototype.cellClicked = function (cellKey) {
-	        this.modelFacade.editCellAliveState(cellKey);
+	        this.model.editCellAliveState(cellKey);
+	    };
+	    Controller.prototype.setModel = function (model) {
+	        this.model = model;
+	    };
+	    Controller.prototype.setView = function (view) {
+	        this.view = view;
 	    };
 	    return Controller;
 	}();

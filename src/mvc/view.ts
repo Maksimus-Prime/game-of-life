@@ -35,6 +35,9 @@ export default class View {
         $(this.$heightInput).on('blur', function () {
             self.publish('changeHeight', this.value);
         });
+        $(window).on('load', function () {
+            self.publish('windowLoaded');
+        });
         this.updateCellClickHandlers = function () {
             this.$cells = $(".cell");
             $(this.$cells).on('click', function () {
@@ -62,6 +65,11 @@ export default class View {
         $(cell).toggleClass("dead");
         let key: string = $(cell).attr("id");
         return key;
+    }
+    addPublisher(el: HTMLElement, eventType: string, eventName: string, param: object) {
+        $(el).on(eventType, function () {
+            self.publish();
+        })
     }
     subscribe(eventName: string, fn):void {
         this.pubsub[eventName] = this.pubsub[eventName] || [];
