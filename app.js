@@ -10543,9 +10543,6 @@
 	        $(this.$heightInput).on('blur', function () {
 	            self.publish('changeHeight', this.value);
 	        });
-	        $(window).on('load', function () {
-	            self.publish('windowLoaded');
-	        });
 	        this.updateCellClickHandlers = function () {
 	            this.$cells = $(".cell");
 	            $(this.$cells).on('click', function () {
@@ -11137,7 +11134,6 @@
 	var Controller = function () {
 	    function Controller() {}
 	    Controller.prototype.init = function () {
-	        console.log(this.view, this.model);
 	        this.initGame();
 	        this.view.subscribe('startGame', this.startGame.bind(this));
 	        this.view.subscribe('pauseGame', this.pauseGame.bind(this));
@@ -11147,7 +11143,6 @@
 	        this.view.subscribe('cellClicked', this.cellClicked.bind(this));
 	    };
 	    Controller.prototype.initGame = function () {
-	        console.log('I was fired!');
 	        this.model.boardInit();
 	        var currentBoard = this.model.getCurrentBoard();
 	        var boardWidth = this.model.getBoardWidth();

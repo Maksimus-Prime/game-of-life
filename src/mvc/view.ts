@@ -35,9 +35,6 @@ export default class View {
         $(this.$heightInput).on('blur', function () {
             self.publish('changeHeight', this.value);
         });
-        $(window).on('load', function () {
-            self.publish('windowLoaded');
-        });
         this.updateCellClickHandlers = function () {
             this.$cells = $(".cell");
             $(this.$cells).on('click', function () {
