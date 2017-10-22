@@ -1,40 +1,40 @@
 import * as $ from "jquery";
 import "./../jquery.tmpl.ts";
 import "./../jquery.tmpl.js";
-
+interface ICell {
+    x: number;
+    y: number;
+    alive: boolean;
+}
+interface IBoard {
+    [index: string]: ICell
+}
+interface IPubsub {
+    [index: string]: any //<Array>() => void
+}
 export default class View {
     $startButton: HTMLButtonElement;
     $pauseButton: HTMLButtonElement;
     $restartButton: HTMLButtonElement;
     $widthInput: HTMLInputElement;
     $heightInput: HTMLInputElement;
-    $cells: NodeListOf<Element>;
-    pubsub: object;
+    $cells: JQuery<HTMLElement>;
+    pubsub: IPubsub;
     updateCellClickHandlers: VoidFunction;
     constructor() {
         let self = this;
         this.pubsub = {};
-        this.$startButton = <HTMLButtonElement>$("#startButton")[0];
-        this.$pauseButton = <HTMLButtonElement>$("#pauseButton")[0];
-        this.$restartButton = <HTMLButtonElement>$("#restartButton")[0];
-        this.$widthInput = <HTMLInputElement>$("#widthInput")[0];
-        this.$heightInput = <HTMLInputElement>$("#heightInput")[0];
+        this.$startButton = $("#startButton")[0] as HTMLButtonElement;
+        this.$pauseButton = $("#pauseButton")[0] as HTMLButtonElement;
+        this.$restartButton = $("#restartButton")[0] as HTMLButtonElement;
+        this.$widthInput = $("#widthInput")[0] as HTMLInputElement;
+        this.$heightInput = $("#heightInput")[0] as HTMLInputElement;
         
-        $(this.$startButton).on('click', function () {
-            self.publish('startGame');
-        });
-        $(this.$pauseButton).on('click', function () {
-            self.publish('pauseGame');
-        });
-        $(this.$restartButton).on('click', function () {
-            self.publish('restartGame');
-        });
-        $(this.$widthInput).on('blur', function () {
-            self.publish('changeWidth', this.value);
-        });
-        $(this.$heightInput).on('blur', function () {
-            self.publish('changeHeight', this.value);
-        });
+        this.addPublisher(self, this.$startButton, 'click', 'startGame');
+        this.addPublisher(self, this.$pauseButton, 'click', 'pauseGame');
+        this.addPublisher(self, this.$restartButton, 'click', 'restartGame');
+        this.addPublisher(self, this.$widthInput, 'blur', 'changeWidth', {passValue: true});
+        this.addPublisher(self, this.$heightInput, 'blur', 'changeHeight', {passValue: true});
         this.updateCellClickHandlers = function () {
             this.$cells = $(".cell");
             $(this.$cells).on('click', function () {
@@ -43,7 +43,7 @@ export default class View {
             });
         }
     }
-    draw(board: object, boardWidth: number):void {
+    draw(board: IBoard, boardWidth: number):void {
         $("#board").html("");
         $.template("sample", '<i class="cell" id="' + 'x' + '${x}' + 'y' + '${y}"></i>');
         $.template("sampleDead", '<i class="cell dead" id="' + 'x' + '${x}' + 'y' + '${y}"></i>');
@@ -63,16 +63,22 @@ export default class View {
         let key: string = $(cell).attr("id");
         return key;
     }
-    addPublisher(el: HTMLElement, eventType: string, eventName: string, param: object) {
+    addPublisher(context: any, el: HTMLElement, eventType: string, publisherMessage: string, param?: {passValue: boolean}) {
+        if(param && param.passValue) {
+            $(el).on(eventType, function () {
+                context.publish(publisherMessage, (this as HTMLInputElement).value);
+            });
+            return;
+        }
         $(el).on(eventType, function () {
-            self.publish();
-        })
+            context.publish(publisherMessage);
+        });
     }
-    subscribe(eventName: string, fn):void {
+    subscribe(eventName: string, fn: (data?:any) => void):void {
         this.pubsub[eventName] = this.pubsub[eventName] || [];
         this.pubsub[eventName].push(fn);
     }
-    unsubscribe(eventName: string, fn):void {
+    unsubscribe(eventName: string, fn: (data?:any) => void):void {
         if(this.pubsub[eventName]) {
             for (let i: number = 0; i < this.pubsub[eventName].length; i++) {
                 if(this.pubsub[eventName][i] === fn) {
@@ -84,7 +90,7 @@ export default class View {
     }
     publish(eventName: string, data?: any):void {
         if(this.pubsub[eventName]) {
-            this.pubsub[eventName].forEach(function(fn) {
+            this.pubsub[eventName].forEach(function(fn: (data?:any) => void) {
                 fn(data);
             });
         }

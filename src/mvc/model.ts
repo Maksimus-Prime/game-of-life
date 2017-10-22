@@ -3,9 +3,12 @@ interface ICell {
     y: number;
     alive: boolean;
 }
+interface IBoard {
+    [index: string]: ICell
+}
 
 export default class Model {
-    public board: { [index: string]: object };
+    public board: IBoard;
     public boardStates: object[] = [];
     public width: number;
     public height: number;
@@ -31,14 +34,14 @@ export default class Model {
             }
         }
     }
-    getCellAt (key: string): object {
+    getCellAt (key: string): ICell {
         return this.board[key];
     }
     getAliveNeighbors (key: string): number {
         let x: number = this.board[key]["x"];
         let y: number = this.board[key]["y"];
         let alive: number = 0;
-        let currentCell: object;
+        let currentCell: ICell;
         for (let i = -1; i < 2; i++) {
             for (let j = -1; j < 2; j++) {
                 if (i === 0 && i === j) {
@@ -52,9 +55,9 @@ export default class Model {
         }
         return alive;
     }
-    calculateNextCellState (key: string): object {
-        let cell: object = this.board[key];
-        let tempCell: object = {x: this.board[key]["x"], y: this.board[key]["y"], alive: this.board[key]["alive"]};
+    calculateNextCellState (key: string): ICell {
+        let cell: ICell = this.board[key];
+        let tempCell: ICell = {x: this.board[key]["x"], y: this.board[key]["y"], alive: this.board[key]["alive"]};
         let livingNeighbours: number = this.getAliveNeighbors(key);
         if (tempCell["alive"]) {
             if (livingNeighbours === 2 || livingNeighbours === 3) {
@@ -71,15 +74,15 @@ export default class Model {
         return tempCell;
     }
     nextBoardState() {
-        let currentBoard: object = this.board;
-        let tempBoard = {};
-        let key: any;
+        let currentBoard: IBoard = this.board;
+        let tempBoard: IBoard = {};
+        let key: string;
         let flag: boolean = false;
         let flagNum: number = 0;
         for (key in this.board) {
             if (this.board.hasOwnProperty(key)) {
-                let currentCell: object = this.board[key];
-                let tempCell: object = this.calculateNextCellState(key);
+                let currentCell: ICell = this.board[key];
+                let tempCell: ICell = this.calculateNextCellState(key);
                 tempBoard[key] = tempCell;              
             }
         }
@@ -114,7 +117,7 @@ export default class Model {
             this.board[key]["alive"] = true;
         }
     }
-    changeWidth(newWidth: number) {
+    changeWidth(newWidth: number):void {
         var temObj = jQuery.extend(true, {}, this.board);
         var temWidth = this.width;
 
@@ -130,10 +133,10 @@ export default class Model {
             }
         }
     }
-    changeHeight(newHeight: number) {
+    changeHeight(newHeight: number):void {
         var temObj = jQuery.extend(true, {}, this.board);
         var temHeight = this.height;
-        
+
         this.height = newHeight;
         this.boardInit();
         for (let keyy in this.board ) {
@@ -146,19 +149,19 @@ export default class Model {
             }
         }
     }
-    changeStopGame(stopGame: boolean) {
+    changeStopGame(stopGame: boolean):void {
         this.stopGame = stopGame;
     }
-    isGameStop() {
+    isGameStop():boolean {
         return this.stopGame;
     }
-    getCurrentBoard() {
+    getCurrentBoard():IBoard {
         return this.board;
     }
-    getBoardWidth() {
+    getBoardWidth():number {
         return this.width;
     }
-    clearBoard() {
+    clearBoard():void {
         this.boardStates = [];
     }
     getModelFacade() {
@@ -181,7 +184,7 @@ function getCellRepresentation(x: number, y: number): string {
     return 'x' + x + 'y' + y;
 }
 
-function objectLength( object: any): number {
+function objectLength( object: object): number {
     let length: number = 0;
     for ( let key in object ) {
         if ( object.hasOwnProperty(key) ) {
@@ -191,6 +194,6 @@ function objectLength( object: any): number {
     return length;
 }
 
-function jsonEqual(a, b) {
+function jsonEqual(a: object, b: object):boolean {
     return JSON.stringify(a) === JSON.stringify(b);
 }

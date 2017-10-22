@@ -38,7 +38,11 @@ module.exports = {
             }
         }]
     },
-
+    devServer: {
+        contentBase: __dirname,
+        host: 'localhost',
+        port: 3003
+    },
     plugins: [
         new webpack.ProvidePlugin({
             $: "jquery/dist/jquery.js",

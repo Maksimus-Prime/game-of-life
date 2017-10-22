@@ -7,7 +7,10 @@
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "npm i": "npm install",
+    "dev": "webpack-dev-server",
+    "prod": "webpack -p"
   },
   "repository": {
     "type": "git",
@@ -46,6 +49,7 @@
     "ts-loader": "^2.3.3",
     "tslint": "^5.7.0",
     "typescript": "^2.4.2",
-    "webpack": "^1.12.2"
+    "webpack": "^1.12.2",
+    "webpack-dev-server": "^1.14.1"
   }
 }

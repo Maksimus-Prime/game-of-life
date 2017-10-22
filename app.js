@@ -10528,21 +10528,11 @@
 	        this.$restartButton = $("#restartButton")[0];
 	        this.$widthInput = $("#widthInput")[0];
 	        this.$heightInput = $("#heightInput")[0];
-	        $(this.$startButton).on('click', function () {
-	            self.publish('startGame');
-	        });
-	        $(this.$pauseButton).on('click', function () {
-	            self.publish('pauseGame');
-	        });
-	        $(this.$restartButton).on('click', function () {
-	            self.publish('restartGame');
-	        });
-	        $(this.$widthInput).on('blur', function () {
-	            self.publish('changeWidth', this.value);
-	        });
-	        $(this.$heightInput).on('blur', function () {
-	            self.publish('changeHeight', this.value);
-	        });
+	        this.addPublisher(self, this.$startButton, 'click', 'startGame');
+	        this.addPublisher(self, this.$pauseButton, 'click', 'pauseGame');
+	        this.addPublisher(self, this.$restartButton, 'click', 'restartGame');
+	        this.addPublisher(self, this.$widthInput, 'blur', 'changeWidth', { passValue: true });
+	        this.addPublisher(self, this.$heightInput, 'blur', 'changeHeight', { passValue: true });
 	        this.updateCellClickHandlers = function () {
 	            this.$cells = $(".cell");
 	            $(this.$cells).on('click', function () {
@@ -10571,9 +10561,15 @@
 	        var key = $(cell).attr("id");
 	        return key;
 	    };
-	    View.prototype.addPublisher = function (el, eventType, eventName, param) {
+	    View.prototype.addPublisher = function (context, el, eventType, publisherMessage, param) {
+	        if (param && param.passValue) {
+	            $(el).on(eventType, function () {
+	                context.publish(publisherMessage, this.value);
+	            });
+	            return;
+	        }
 	        $(el).on(eventType, function () {
-	            self.publish();
+	            context.publish(publisherMessage);
 	        });
 	    };
 	    View.prototype.subscribe = function (eventName, fn) {
@@ -11150,7 +11146,7 @@
 	    };
 	    Controller.prototype.startGame = function () {
 	        var _this = this;
-	        this.timer = setInterval(function () {
+	        this.timer = window.setInterval(function () {
 	            var gameStopStatus = _this.model.isGameStop();
 	            if (!gameStopStatus) {
 	                _this.model.changeStopGame(false);
