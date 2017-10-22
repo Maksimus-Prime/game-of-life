@@ -3,7 +3,7 @@ import * as $ from "jquery";
 export default class Controller {
     public model: any;
     public view: any;
-    timer;
+    timer: number;
     constructor() {
     }
     init() {
@@ -22,7 +22,7 @@ export default class Controller {
         this.view.draw(currentBoard, boardWidth);   
     }
     startGame():void {
-        this.timer = setInterval( () => {
+        this.timer = window.setInterval( () => {
             let gameStopStatus = this.model.isGameStop();
             if (!gameStopStatus) {
                 this.model.changeStopGame(false);
