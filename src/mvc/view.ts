@@ -10,7 +10,7 @@ interface IBoard {
     [index: string]: ICell
 }
 interface IPubsub {
-    [index: string]: any //<Array>() => void
+    [index: string]: any 
 }
 export default class View {
     $startButton: HTMLButtonElement;
@@ -65,8 +65,8 @@ export default class View {
     }
     addPublisher(context: any, el: HTMLElement, eventType: string, publisherMessage: string, param?: {passValue: boolean}) {
         if(param && param.passValue) {
-            $(el).on(eventType, function () {
-                context.publish(publisherMessage, (this as HTMLInputElement).value);
+            $(el).on(eventType, function (e) {
+                context.publish(publisherMessage, e.currentTarget.value);
             });
             return;
         }
