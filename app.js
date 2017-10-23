@@ -10563,8 +10563,8 @@
 	    };
 	    View.prototype.addPublisher = function (context, el, eventType, publisherMessage, param) {
 	        if (param && param.passValue) {
-	            $(el).on(eventType, function () {
-	                context.publish(publisherMessage, this.value);
+	            $(el).on(eventType, function (e) {
+	                context.publish(publisherMessage, e.currentTarget.value);
 	            });
 	            return;
 	        }

@@ -1,7 +1,4 @@
 # game-of-life
-some description
-
-# task-two-ui-kit
 Conway's Game of Life in Javascript
 ## Installation
 1. Clone repository
