@@ -1,77 +1,77 @@
 import * as $ from "jquery";
 
 export default class Controller {
-    public model: any;
-    public view: any;
-    timer: number;
+    private model: any;
+    private view: any;
+    private timer: number;
     constructor() {
     }
-    init() {
-        this.initGame()
-        this.view.subscribe('startGame', this.startGame.bind(this));
-        this.view.subscribe('pauseGame', this.pauseGame.bind(this));
-        this.view.subscribe('restartGame', this.restartGame.bind(this));
-        this.view.subscribe('changeWidth', this.changeWidth.bind(this));
-        this.view.subscribe('changeHeight', this.changeHeight.bind(this));
-        this.view.subscribe('cellClicked', this.cellClicked.bind(this));
+    public init() {
+        this.initGame();
+        this.view.subscribe("startGame", this.startGame.bind(this));
+        this.view.subscribe("pauseGame", this.pauseGame.bind(this));
+        this.view.subscribe("restartGame", this.restartGame.bind(this));
+        this.view.subscribe("changeWidth", this.changeWidth.bind(this));
+        this.view.subscribe("changeHeight", this.changeHeight.bind(this));
+        this.view.subscribe("cellClicked", this.cellClicked.bind(this));
     }
-    initGame() {
+    public initGame() {
         this.model.boardInit();
-        let currentBoard = this.model.getCurrentBoard();
-        let boardWidth = this.model.getBoardWidth();
-        this.view.draw(currentBoard, boardWidth);   
+        const currentBoard = this.model.getCurrentBoard();
+        const boardWidth = this.model.getBoardWidth();
+        this.view.draw(currentBoard, boardWidth);
     }
-    startGame():void {
+    public startGame(): void {
         this.timer = window.setInterval( () => {
-            let gameStopStatus = this.model.isGameStop();
+            const gameStopStatus = this.model.isGameStop();
             if (!gameStopStatus) {
                 this.model.changeStopGame(false);
                 this.model.nextBoardState();
-                let currentBoard = this.model.getCurrentBoard();
-                let boardWidth = this.model.getBoardWidth();
+                const currentBoard = this.model.getCurrentBoard();
+                const boardWidth = this.model.getBoardWidth();
                 this.view.draw(currentBoard, boardWidth);
             } else {
-                alert('Game is over!');
+                alert("Game is over!");
                 clearTimeout(this.timer);
                 this.model.changeStopGame(true);
                 this.model.clearBoard();
             }
         }, 1000);
     }
-    pauseGame():void {
+    public pauseGame(): void {
         clearTimeout(this.timer);
-        let currentBoard = this.model.getCurrentBoard();
-        let boardWidth = this.model.getBoardWidth();
+        const currentBoard = this.model.getCurrentBoard();
+        const boardWidth = this.model.getBoardWidth();
         this.view.draw(currentBoard, boardWidth);
     }
-    restartGame():void {
+    public restartGame(): void {
         clearTimeout(this.timer);
         this.model.boardInit();
         this.model.clearBoard();
         this.model.changeStopGame(false);
-        let currentBoard = this.model.getCurrentBoard();
-        let boardWidth = this.model.getBoardWidth();
+        const currentBoard = this.model.getCurrentBoard();
+        const boardWidth = this.model.getBoardWidth();
         this.view.draw(currentBoard, boardWidth);
     }
-    changeHeight(newHeight: number):void {
+    public changeHeight(newHeight: number): void {
         this.model.changeHeight(newHeight);
-        let currentBoard = this.model.getCurrentBoard();
-        let boardWidth = this.model.getBoardWidth();
+        const currentBoard = this.model.getCurrentBoard();
+        const boardWidth = this.model.getBoardWidth();
         this.view.draw(currentBoard, boardWidth);
     }
-    changeWidth(newWidth: number):void {
+    public changeWidth(newWidth: number): void {
         this.model.changeWidth(newWidth);
-        let currentBoard = this.model.getCurrentBoard();
-        let boardWidth = this.model.getBoardWidth();
+        const currentBoard = this.model.getCurrentBoard();
+        const boardWidth = this.model.getBoardWidth();
         this.view.draw(currentBoard, boardWidth);
     }
-    cellClicked(cellKey: string):void {
+    public cellClicked(cellKey: string): void {
         this.model.editCellAliveState(cellKey);
     }
-    setModel(model: object) {
+    public setModel(model: object) {
         this.model = model;
     }
-    setView(view: object) {
+    public setView(view: object) {
         this.view = view;
     }
 }

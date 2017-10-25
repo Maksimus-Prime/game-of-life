@@ -93,8 +93,8 @@
 	        return this.board[key];
 	    };
 	    Model.prototype.getAliveNeighbors = function (key) {
-	        var x = this.board[key]["x"];
-	        var y = this.board[key]["y"];
+	        var x = this.board[key].x;
+	        var y = this.board[key].y;
 	        var alive = 0;
 	        var currentCell;
 	        for (var i = -1; i < 2; i++) {
@@ -103,7 +103,7 @@
 	                    continue;
 	                }
 	                currentCell = this.getCellAt(getCellRepresentation(x + i, y + j));
-	                if (currentCell && currentCell["alive"]) {
+	                if (currentCell && currentCell.alive) {
 	                    alive++;
 	                }
 	            }
@@ -112,17 +112,17 @@
 	    };
 	    Model.prototype.calculateNextCellState = function (key) {
 	        var cell = this.board[key];
-	        var tempCell = { x: this.board[key]["x"], y: this.board[key]["y"], alive: this.board[key]["alive"] };
+	        var tempCell = { x: this.board[key].x, y: this.board[key].y, alive: this.board[key].alive };
 	        var livingNeighbours = this.getAliveNeighbors(key);
-	        if (tempCell["alive"]) {
+	        if (tempCell.alive) {
 	            if (livingNeighbours === 2 || livingNeighbours === 3) {
-	                tempCell["alive"] = true;
+	                tempCell.alive = true;
 	            } else {
-	                tempCell["alive"] = false;
+	                tempCell.alive = false;
 	            }
 	        } else {
 	            if (livingNeighbours === 3) {
-	                tempCell["alive"] = true;
+	                tempCell.alive = true;
 	            }
 	        }
 	        return tempCell;
@@ -141,8 +141,9 @@
 	            }
 	        }
 	        // check 1
-	        for (var i = 0; i < this.boardStates.length; i++) {
-	            if (jsonEqual(this.boardStates[i], tempBoard)) {
+	        for (var _i = 0, _a = this.boardStates; _i < _a.length; _i++) {
+	            var boardState = _a[_i];
+	            if (jsonEqual(boardState, tempBoard)) {
 	                flag = true;
 	            }
 	        }
@@ -152,7 +153,7 @@
 	        }
 	        // check 2
 	        for (var j in this.board) {
-	            if (this.board[j]["alive"]) {
+	            if (this.board[j].alive) {
 	                flagNum++;
 	            }
 	        }
@@ -164,11 +165,11 @@
 	        this.board = tempBoard;
 	    };
 	    Model.prototype.editCellAliveState = function (key) {
-	        var cellAlive = this.board[key]["alive"];
+	        var cellAlive = this.board[key].alive;
 	        if (cellAlive) {
-	            this.board[key]["alive"] = false;
+	            this.board[key].alive = false;
 	        } else {
-	            this.board[key]["alive"] = true;
+	            this.board[key].alive = true;
 	        }
 	    };
 	    Model.prototype.changeWidth = function (newWidth) {
@@ -180,7 +181,7 @@
 	            if (this.board.hasOwnProperty(keyy)) {
 	                for (var key in temObj) {
 	                    if (keyy === key) {
-	                        this.board[getCellRepresentation(temObj[keyy]["x"], temObj[keyy]["y"])] = temObj[keyy];
+	                        this.board[getCellRepresentation(temObj[keyy].x, temObj[keyy].y)] = temObj[keyy];
 	                    }
 	                }
 	            }
@@ -195,7 +196,7 @@
 	            if (this.board.hasOwnProperty(keyy)) {
 	                for (var key in temObj) {
 	                    if (keyy === key) {
-	                        this.board[getCellRepresentation(temObj[keyy]["x"], temObj[keyy]["y"])] = temObj[keyy];
+	                        this.board[getCellRepresentation(temObj[keyy].x, temObj[keyy].y)] = temObj[keyy];
 	                    }
 	                }
 	            }
@@ -234,7 +235,7 @@
 	}();
 	exports.default = Model;
 	function getCellRepresentation(x, y) {
-	    return 'x' + x + 'y' + y;
+	    return "x" + x + "y" + y;
 	}
 	function objectLength(object) {
 	    var length = 0;
@@ -10528,26 +10529,31 @@
 	        this.$restartButton = $("#restartButton")[0];
 	        this.$widthInput = $("#widthInput")[0];
 	        this.$heightInput = $("#heightInput")[0];
-	        this.addPublisher(self, this.$startButton, 'click', 'startGame');
-	        this.addPublisher(self, this.$pauseButton, 'click', 'pauseGame');
-	        this.addPublisher(self, this.$restartButton, 'click', 'restartGame');
-	        this.addPublisher(self, this.$widthInput, 'blur', 'changeWidth', { passValue: true });
-	        this.addPublisher(self, this.$heightInput, 'blur', 'changeHeight', { passValue: true });
+	        this.addPublisher(self, this.$startButton, "click", "startGame");
+	        this.addPublisher(self, this.$pauseButton, "click", "pauseGame");
+	        this.addPublisher(self, this.$restartButton, "click", "restartGame");
+	        this.addPublisher(self, this.$widthInput, "blur", "changeWidth", { passValue: true });
+	        this.addPublisher(self, this.$heightInput, "blur", "changeHeight", { passValue: true });
 	        this.updateCellClickHandlers = function () {
 	            this.$cells = $(".cell");
-	            $(this.$cells).on('click', function () {
+	            $(this.$cells).on("click", function () {
 	                var cellKey = self.toggleCellClass(this);
-	                self.publish('cellClicked', cellKey);
+	                self.publish("cellClicked", cellKey);
 	            });
 	        };
 	    }
+	    View.prototype.e = function (event) {
+	        var target = event.target;
+	        var className = target.className;
+	        var value = target.nodeValue;
+	    };
 	    View.prototype.draw = function (board, boardWidth) {
 	        $("#board").html("");
-	        $.template("sample", '<i class="cell" id="' + 'x' + '${x}' + 'y' + '${y}"></i>');
-	        $.template("sampleDead", '<i class="cell dead" id="' + 'x' + '${x}' + 'y' + '${y}"></i>');
+	        $.template("sample", '<i class="cell" id="' + "x" + "${x}" + "y" + '${y}"></i>');
+	        $.template("sampleDead", '<i class="cell dead" id="' + "x" + "${x}" + "y" + '${y}"></i>');
 	        var len = objectLength(board);
 	        for (var key in board) {
-	            if (board[key]["alive"]) {
+	            if (board[key].alive) {
 	                $.tmpl("sample", board[key]).appendTo("#board");
 	            } else {
 	                $.tmpl("sampleDead", board[key]).appendTo("#board");
@@ -10558,8 +10564,11 @@
 	    };
 	    View.prototype.toggleCellClass = function (cell) {
 	        $(cell).toggleClass("dead");
-	        var key = $(cell).attr("id");
-	        return key;
+	        var checkUndefined = $(cell).attr("id");
+	        if (checkUndefined !== void 0) {
+	            var key = checkUndefined;
+	            return key;
+	        }
 	    };
 	    View.prototype.addPublisher = function (context, el, eventType, publisherMessage, param) {
 	        if (param && param.passValue) {
@@ -10616,12 +10625,6 @@
 
 /***/ },
 /* 4 */
-/***/ function(module, exports) {
-
-	"use strict";
-
-/***/ },
-/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(jQuery) {"use strict";
@@ -11121,6 +11124,12 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ },
+/* 5 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+/***/ },
 /* 6 */
 /***/ function(module, exports) {
 
@@ -11131,12 +11140,12 @@
 	    function Controller() {}
 	    Controller.prototype.init = function () {
 	        this.initGame();
-	        this.view.subscribe('startGame', this.startGame.bind(this));
-	        this.view.subscribe('pauseGame', this.pauseGame.bind(this));
-	        this.view.subscribe('restartGame', this.restartGame.bind(this));
-	        this.view.subscribe('changeWidth', this.changeWidth.bind(this));
-	        this.view.subscribe('changeHeight', this.changeHeight.bind(this));
-	        this.view.subscribe('cellClicked', this.cellClicked.bind(this));
+	        this.view.subscribe("startGame", this.startGame.bind(this));
+	        this.view.subscribe("pauseGame", this.pauseGame.bind(this));
+	        this.view.subscribe("restartGame", this.restartGame.bind(this));
+	        this.view.subscribe("changeWidth", this.changeWidth.bind(this));
+	        this.view.subscribe("changeHeight", this.changeHeight.bind(this));
+	        this.view.subscribe("cellClicked", this.cellClicked.bind(this));
 	    };
 	    Controller.prototype.initGame = function () {
 	        this.model.boardInit();
@@ -11155,7 +11164,7 @@
 	                var boardWidth = _this.model.getBoardWidth();
 	                _this.view.draw(currentBoard, boardWidth);
 	            } else {
-	                alert('Game is over!');
+	                alert("Game is over!");
 	                clearTimeout(_this.timer);
 	                _this.model.changeStopGame(true);
 	                _this.model.clearBoard();
