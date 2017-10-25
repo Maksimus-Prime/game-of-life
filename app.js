@@ -10542,11 +10542,6 @@
 	            });
 	        };
 	    }
-	    View.prototype.e = function (event) {
-	        var target = event.target;
-	        var className = target.className;
-	        var value = target.nodeValue;
-	    };
 	    View.prototype.draw = function (board, boardWidth) {
 	        $("#board").html("");
 	        $.template("sample", '<i class="cell" id="' + "x" + "${x}" + "y" + '${y}"></i>');
