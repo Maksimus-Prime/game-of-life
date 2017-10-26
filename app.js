@@ -42,7 +42,7 @@
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
 
@@ -60,14 +60,14 @@
 	    controller.init();
 	});
 
-/***/ },
+/***/ }),
 /* 1 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(jQuery) {"use strict";
 
 	Object.defineProperty(exports, "__esModule", { value: true });
-	var Model = function () {
+	var Model = /** @class */function () {
 	    function Model(width, height) {
 	        this.boardStates = [];
 	        this.board = {};
@@ -251,9 +251,9 @@
 	}
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
-/***/ },
+/***/ }),
 /* 2 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
 	 * jQuery JavaScript Library v3.2.1
@@ -10510,9 +10510,9 @@
 	} );
 
 
-/***/ },
+/***/ }),
 /* 3 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
 
@@ -10520,7 +10520,7 @@
 	var $ = __webpack_require__(2);
 	__webpack_require__(4);
 	__webpack_require__(5);
-	var View = function () {
+	var View = /** @class */function () {
 	    function View() {
 	        var self = this;
 	        this.pubsub = {};
@@ -10618,9 +10618,9 @@
 	    return length;
 	}
 
-/***/ },
+/***/ }),
 /* 4 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(jQuery) {"use strict";
 
@@ -11118,20 +11118,20 @@
 	})(jQuery);
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
-/***/ },
+/***/ }),
 /* 5 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	"use strict";
 
-/***/ },
+/***/ }),
 /* 6 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	"use strict";
 
 	Object.defineProperty(exports, "__esModule", { value: true });
-	var Controller = function () {
+	var Controller = /** @class */function () {
 	    function Controller() {}
 	    Controller.prototype.init = function () {
 	        this.initGame();
@@ -11206,5 +11206,5 @@
 	}();
 	exports.default = Controller;
 
-/***/ }
+/***/ })
 /******/ ]);

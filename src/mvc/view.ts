@@ -12,9 +12,7 @@ interface IBoard {
 interface IPubsub {
     [index: string]: any;
 }
-interface IMyEventTarget extends EventTarget {
-    value: number;
-}
+type EventType = "click" | "blur";
 export default class View {
     private $startButton: HTMLButtonElement;
     private $pauseButton: HTMLButtonElement;
@@ -69,10 +67,10 @@ export default class View {
             return key;
         }
     }
-    public addPublisher(context: any, el: HTMLElement, eventType: string, publisherMessage: string, param?: {passValue: boolean}) {
+    public addPublisher(context: any, el: HTMLElement, eventType: EventType, publisherMessage: string, param?: {passValue: boolean}) {
         if (param && param.passValue) {
             $(el).on(eventType, function(e: Event) {
-                context.publish(publisherMessage, (e.currentTarget as IMyEventTarget).value);
+                context.publish(publisherMessage, (e.currentTarget as HTMLInputElement).value);
             });
             return;
         }
