@@ -1,6 +1,5 @@
 "use strict";
 const webpack = require("webpack");
-var expect = require('expect.js');
 
 module.exports = {
     entry: {
