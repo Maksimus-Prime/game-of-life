@@ -1,6 +1,7 @@
 import * as $ from "jquery";
 import "./../jquery.tmpl.js";
 import "./../jquery.tmpl.ts";
+
 interface ICell {
     x: number;
     y: number;
@@ -10,7 +11,10 @@ interface IBoard {
     [index: string]: ICell;
 }
 interface IPubsub {
-    [index: string]: any;
+    [index: string]: [(data?: number | undefined) => void];
+}
+interface ICallbackSub {
+    (data?: number | undefined):void
 }
 type EventType = "click" | "blur";
 export default class View {
@@ -78,11 +82,11 @@ export default class View {
             context.publish(publisherMessage);
         });
     }
-    public subscribe(eventName: string, fn: (data?: any) => void): void {
+    public subscribe(eventName: string, fn: ICallbackSub): void {
         this.pubsub[eventName] = this.pubsub[eventName] || [];
         this.pubsub[eventName].push(fn);
     }
-    public unsubscribe(eventName: string, fn: (data?: any) => void): void {
+    public unsubscribe(eventName: string, fn: ICallbackSub): void {
         if (this.pubsub[eventName]) {
             for (let i: number = 0; i < this.pubsub[eventName].length; i++) {
                 if (this.pubsub[eventName][i] === fn) {
@@ -94,12 +98,12 @@ export default class View {
     }
     public publish(eventName: string, data?: any): void {
         if (this.pubsub[eventName]) {
-            this.pubsub[eventName].forEach(function(fn: (data?: any) => void) {
+            this.pubsub[eventName].forEach(function(fn: ICallbackSub) {
                 fn(data);
             });
         }
     }
-    public getViewFacade() {
+    public getView() {
         return {
             draw: this.draw.bind(this),
             toggleCellClass: this.toggleCellClass.bind(this),
@@ -109,12 +113,6 @@ export default class View {
     }
 }
 
-function objectLength( object: any): number {
-    let length: number = 0;
-    for ( const key in object ) {
-        if ( object.hasOwnProperty(key) ) {
-            ++length;
-        }
-    }
-    return length;
+function objectLength(object: IBoard): number {
+    return Object.keys(object).length;
 }

@@ -1,8 +1,37 @@
 import * as $ from "jquery";
 
+interface ICell {
+    x: number;
+    y: number;
+    alive: boolean;
+}
+interface IBoard {
+    [index: string]: ICell;
+}
+interface ICallbackSub {
+    (data?: number | undefined):void
+}
+interface IModel {
+    boardInit(): void,
+    nextBoardState(): void,
+    editCellAliveState(key: string): void,
+    changeWidth(newWidth: number): void,
+    changeHeight(newHeight: number): void,
+    changeStopGame(stopGame: boolean): void,
+    isGameStop(): boolean,
+    getCurrentBoard(): IBoard,
+    getBoardWidth(): number,
+    clearBoard(): void
+}
+interface IView {
+    draw(board: IBoard, boardWidth: number): void,
+    toggleCellClass(cell: HTMLHtmlElement): string | void,
+    subscribe(eventName: string, fn: ICallbackSub): void,
+    unsubscribe(eventName: string, fn: ICallbackSub): void
+}
 export default class Controller {
-    private model: any;
-    private view: any;
+    private model: IModel;
+    private view: IView;
     private timer: number;
     constructor() {
     }
@@ -68,10 +97,10 @@ export default class Controller {
     public cellClicked(cellKey: string): void {
         this.model.editCellAliveState(cellKey);
     }
-    public setModel(model: object) {
+    public setModel(model: IModel):void {
         this.model = model;
     }
-    public setView(view: object) {
+    public setView(view: IView):void {
         this.view = view;
     }
 }
