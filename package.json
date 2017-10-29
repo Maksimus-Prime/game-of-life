@@ -9,8 +9,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "npm i": "npm install",
-    "dev": "webpack-dev-server",
-    "prod": "webpack -p"
+    "dev": "./node_modules/.bin/webpack-dev-server",
+    "prod": "./node_modules/.bin/webpack -p",
+    "tst": "./node_modules/.bin/karma start"
   },
   "repository": {
     "type": "git",
@@ -27,11 +28,13 @@
     "@types/expect": "^1.20.1",
     "@types/jquery": "^3.2.12",
     "@types/mocha": "^2.2.41",
+    "@types/node": "^8.0.47",
     "babel-core": "^6.26.0",
+    "babel-eslint": "^7.2.3",
     "babel-loader": "^6.2.10",
     "babel-preset-env": "^1.6.0",
-    "babel-eslint": "^7.2.3",
     "chai": "^4.1.1",
+    "deep-equal": "^1.0.1",
     "expect": "^1.20.2",
     "jquery": "^3.2.1",
     "jquery-ui": "^1.12.1",
@@ -43,7 +46,7 @@
     "mocha": "^3.5.0",
     "mocha-sinon": "^2.0.0",
     "pug": "^2.0.0-rc.1",
-    "pug-loader": "^2.0.0",    
+    "pug-loader": "^2.0.0",
     "sinon": "^3.2.0",
     "ts-loader": "^2.3.3",
     "tslint": "^5.7.0",

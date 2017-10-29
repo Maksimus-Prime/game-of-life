@@ -1,3 +1,5 @@
+const equal = require('deep-equal');
+
 interface ICell {
     x: number;
     y: number;
@@ -6,9 +8,8 @@ interface ICell {
 interface IBoard {
     [index: string]: ICell;
 }
-
 export default class Model {
-    private boardStates: object[] = [];
+    private boardStates: IBoard[] = [];
     public board: IBoard;
     public width: number;
     public height: number;
@@ -88,7 +89,7 @@ export default class Model {
         }
         // check 1
         for (const boardState of this.boardStates) {
-            if (jsonEqual(boardState, tempBoard)) {
+            if (objectsEqual(boardState, tempBoard)) {
                 flag = true;
             }
         }
@@ -164,7 +165,7 @@ export default class Model {
     public clearBoard(): void {
         this.boardStates = [];
     }
-    public getModelFacade() {
+    public getModel() {
         return {
             boardInit: this.boardInit.bind(this),
             nextBoardState: this.nextBoardState.bind(this),
@@ -184,16 +185,6 @@ function getCellRepresentation(x: number, y: number): string {
     return "x" + x + "y" + y;
 }
 
-function objectLength( object: object): number {
-    let length: number = 0;
-    for ( const key in object ) {
-        if ( object.hasOwnProperty(key) ) {
-            ++length;
-        }
-    }
-    return length;
-}
-
-function jsonEqual(a: object, b: object): boolean {
-    return JSON.stringify(a) === JSON.stringify(b);
+function objectsEqual(a: IBoard, b: IBoard): boolean {
+    return equal(a, b);
 }
