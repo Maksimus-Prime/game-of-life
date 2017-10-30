@@ -10662,11 +10662,11 @@
 	        this.$restartButton = $("#restartButton")[0];
 	        this.$widthInput = $("#widthInput")[0];
 	        this.$heightInput = $("#heightInput")[0];
-	        this.addPublisher(self, this.$startButton, "click", "startGame");
-	        this.addPublisher(self, this.$pauseButton, "click", "pauseGame");
-	        this.addPublisher(self, this.$restartButton, "click", "restartGame");
-	        this.addPublisher(self, this.$widthInput, "blur", "changeWidth", { passValue: true });
-	        this.addPublisher(self, this.$heightInput, "blur", "changeHeight", { passValue: true });
+	        this.addPublisher(this.$startButton, "click", "startGame");
+	        this.addPublisher(this.$pauseButton, "click", "pauseGame");
+	        this.addPublisher(this.$restartButton, "click", "restartGame");
+	        this.addPublisher(this.$widthInput, "blur", "changeWidth", { passValue: true });
+	        this.addPublisher(this.$heightInput, "blur", "changeHeight", { passValue: true });
 	        this.updateCellClickHandlers = function () {
 	            this.$cells = $(".cell");
 	            $(this.$cells).on("click", function () {
@@ -10698,15 +10698,16 @@
 	            return key;
 	        }
 	    };
-	    View.prototype.addPublisher = function (context, el, eventType, publisherMessage, param) {
+	    View.prototype.addPublisher = function (el, eventType, publisherMessage, param) {
+	        var _this = this;
 	        if (param && param.passValue) {
 	            $(el).on(eventType, function (e) {
-	                context.publish(publisherMessage, e.currentTarget.value);
+	                _this.publish(publisherMessage, e.currentTarget.value);
 	            });
 	            return;
 	        }
 	        $(el).on(eventType, function () {
-	            context.publish(publisherMessage);
+	            _this.publish(publisherMessage);
 	        });
 	    };
 	    View.prototype.subscribe = function (eventName, fn) {
