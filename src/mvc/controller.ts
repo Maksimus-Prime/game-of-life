@@ -8,33 +8,30 @@ interface ICell {
 interface IBoard {
     [index: string]: ICell;
 }
-interface ICallbackSub {
-    (data?: number | undefined):void
-}
+type CallBackData = number | string | void | undefined;
+type CallbackSub = (data?: CallBackData) => void;
 interface IModel {
-    boardInit(): void,
-    nextBoardState(): void,
-    editCellAliveState(key: string): void,
-    changeWidth(newWidth: number): void,
-    changeHeight(newHeight: number): void,
-    changeStopGame(stopGame: boolean): void,
-    isGameStop(): boolean,
-    getCurrentBoard(): IBoard,
-    getBoardWidth(): number,
-    clearBoard(): void
+    boardInit(): void;
+    nextBoardState(): void;
+    editCellAliveState(key: string): void;
+    changeWidth(newWidth: number): void;
+    changeHeight(newHeight: number): void;
+    changeStopGame(stopGame: boolean): void;
+    isGameStop(): boolean;
+    getCurrentBoard(): IBoard;
+    getBoardWidth(): number;
+    clearBoardStates(): void;
 }
 interface IView {
-    draw(board: IBoard, boardWidth: number): void,
-    toggleCellClass(cell: HTMLHtmlElement): string | void,
-    subscribe(eventName: string, fn: ICallbackSub): void,
-    unsubscribe(eventName: string, fn: ICallbackSub): void
+    draw(board: IBoard, boardWidth: number): void;
+    toggleCellClass(cell: HTMLHtmlElement): string | void;
+    subscribe(eventName: string, fn: CallbackSub): void;
+    unsubscribe(eventName: string, fn: CallbackSub): void;
 }
 export default class Controller {
     private model: IModel;
     private view: IView;
     private timer: number;
-    constructor() {
-    }
     public init() {
         this.initGame();
         this.view.subscribe("startGame", this.startGame.bind(this));
@@ -63,7 +60,7 @@ export default class Controller {
                 alert("Game is over!");
                 clearTimeout(this.timer);
                 this.model.changeStopGame(true);
-                this.model.clearBoard();
+                this.model.clearBoardStates();
             }
         }, 1000);
     }
@@ -76,7 +73,7 @@ export default class Controller {
     public restartGame(): void {
         clearTimeout(this.timer);
         this.model.boardInit();
-        this.model.clearBoard();
+        this.model.clearBoardStates();
         this.model.changeStopGame(false);
         const currentBoard = this.model.getCurrentBoard();
         const boardWidth = this.model.getBoardWidth();
@@ -97,10 +94,10 @@ export default class Controller {
     public cellClicked(cellKey: string): void {
         this.model.editCellAliveState(cellKey);
     }
-    public setModel(model: IModel):void {
+    public setModel(model: IModel): void {
         this.model = model;
     }
-    public setView(view: IView):void {
+    public setView(view: IView): void {
         this.view = view;
     }
 }

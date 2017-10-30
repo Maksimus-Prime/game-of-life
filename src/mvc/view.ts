@@ -7,14 +7,13 @@ interface ICell {
     y: number;
     alive: boolean;
 }
+type CallBackData = number | string | void | undefined;
+type CallbackSub = (data?: CallBackData) => void;
 interface IBoard {
     [index: string]: ICell;
 }
 interface IPubsub {
-    [index: string]: [(data?: number | undefined) => void];
-}
-interface ICallbackSub {
-    (data?: number | undefined):void
+    [index: string]: [(data?: CallBackData) => void];
 }
 type EventType = "click" | "blur";
 export default class View {
@@ -82,11 +81,11 @@ export default class View {
             context.publish(publisherMessage);
         });
     }
-    public subscribe(eventName: string, fn: ICallbackSub): void {
+    public subscribe(eventName: string, fn: CallbackSub): void {
         this.pubsub[eventName] = this.pubsub[eventName] || [];
         this.pubsub[eventName].push(fn);
     }
-    public unsubscribe(eventName: string, fn: ICallbackSub): void {
+    public unsubscribe(eventName: string, fn: CallbackSub): void {
         if (this.pubsub[eventName]) {
             for (let i: number = 0; i < this.pubsub[eventName].length; i++) {
                 if (this.pubsub[eventName][i] === fn) {
@@ -96,9 +95,9 @@ export default class View {
             }
         }
     }
-    public publish(eventName: string, data?: any): void {
+    public publish(eventName: string, data?: CallBackData): void {
         if (this.pubsub[eventName]) {
-            this.pubsub[eventName].forEach(function(fn: ICallbackSub) {
+            this.pubsub[eventName].forEach(function(fn: CallbackSub) {
                 fn(data);
             });
         }
