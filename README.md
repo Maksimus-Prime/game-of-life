@@ -18,4 +18,8 @@ npm run dev
 ```
 npm run prod
 ```
+### Tests
+```
+npm run tst
+```
 Look at the [result](https://maksimus-prime.github.io/game-of-life/).

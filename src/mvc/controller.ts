@@ -28,7 +28,7 @@ interface IView {
     subscribe(eventName: string, fn: CallbackSub): void;
     unsubscribe(eventName: string, fn: CallbackSub): void;
 }
-export default class Controller {
+class Controller {
     private model: IModel;
     private view: IView;
     private timer: number;
@@ -101,3 +101,5 @@ export default class Controller {
         this.view = view;
     }
 }
+
+export default Controller;

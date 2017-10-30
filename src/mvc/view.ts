@@ -16,7 +16,7 @@ interface IPubsub {
     [index: string]: [(data?: CallBackData) => void];
 }
 type EventType = "click" | "blur";
-export default class View {
+class View {
     private $startButton: HTMLButtonElement;
     private $pauseButton: HTMLButtonElement;
     private $restartButton: HTMLButtonElement;
@@ -70,9 +70,9 @@ export default class View {
             return key;
         }
     }
-    public addPublisher(context: any, el: HTMLElement, eventType: EventType, publisherMessage: string, param?: {passValue: boolean}) {
+    public addPublisher(context: this, el: HTMLElement, eventType: EventType, publisherMessage: string, param?: {passValue: boolean}) {
         if (param && param.passValue) {
-            $(el).on(eventType, function(e: Event) {
+            $(el).on(eventType, function(e: JQuery.Event) {
                 context.publish(publisherMessage, (e.currentTarget as HTMLInputElement).value);
             });
             return;
@@ -115,3 +115,5 @@ export default class View {
 function objectLength(object: IBoard): number {
     return Object.keys(object).length;
 }
+
+export default View;

@@ -234,13 +234,13 @@
 	    };
 	    return Model;
 	}();
-	exports.default = Model;
 	function getCellRepresentation(x, y) {
 	    return "x" + x + "y" + y;
 	}
 	function objectsEqual(a, b) {
 	    return equal(a, b);
 	}
+	exports.default = Model;
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ }),
@@ -10740,10 +10740,10 @@
 	    };
 	    return View;
 	}();
-	exports.default = View;
 	function objectLength(object) {
 	    return Object.keys(object).length;
 	}
+	exports.default = View;
 
 /***/ }),
 /* 7 */
