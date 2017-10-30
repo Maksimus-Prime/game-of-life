@@ -123,6 +123,24 @@ describe('model', () => {
     });
 });
 
+describe('view', () => {
+    beforeEach(function() {
+        width = 3;
+        height = 3;
+        model = (new Model(width, height)).getModel();
+        view = (new View()).getView();
+        controller = new Controller();
+        controller.setModel(model);
+        controller.setView(view);
+        model.boardInit();
+    });
+    describe('view.toggleCellClass', () => {
+        it('view.toggleCellClass should be a function', () => {
+            expect(view.toggleCellClass).to.be.an('function');
+        });
+    });
+});
+
 function objectLength(object: IBoard): number {
     return Object.keys(object).length;
 }
