@@ -9,13 +9,12 @@ module.exports = function(config) {
     plugins: [
       'karma-webpack',
       'karma-mocha',
-      'karma-chai',
       'karma-sinon',
       'karma-mocha-reporter',
       'karma-chrome-launcher'
     ],
 
-    frameworks: ['mocha', 'chai', 'sinon'],
+    frameworks: ['mocha', 'sinon'],
 
     mime: {
       'text/x-typescript': ['ts','tsx']
