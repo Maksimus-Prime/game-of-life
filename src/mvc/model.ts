@@ -1,4 +1,4 @@
-const equal = require('deep-equal');
+import equal = require("deep-equal");
 
 interface ICell {
     x: number;
@@ -162,7 +162,7 @@ export default class Model {
     public getBoardWidth(): number {
         return this.width;
     }
-    public clearBoard(): void {
+    public clearBoardStates(): void {
         this.boardStates = [];
     }
     public getModel() {
@@ -176,7 +176,7 @@ export default class Model {
             isGameStop: this.isGameStop.bind(this),
             getCurrentBoard: this.getCurrentBoard.bind(this),
             getBoardWidth: this.getBoardWidth.bind(this),
-            clearBoard: this.clearBoard.bind(this),
+            clearBoardStates: this.clearBoardStates.bind(this),
         };
     }
 }

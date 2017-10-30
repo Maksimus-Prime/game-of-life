@@ -215,7 +215,7 @@
 	    Model.prototype.getBoardWidth = function () {
 	        return this.width;
 	    };
-	    Model.prototype.clearBoard = function () {
+	    Model.prototype.clearBoardStates = function () {
 	        this.boardStates = [];
 	    };
 	    Model.prototype.getModel = function () {
@@ -229,7 +229,7 @@
 	            isGameStop: this.isGameStop.bind(this),
 	            getCurrentBoard: this.getCurrentBoard.bind(this),
 	            getBoardWidth: this.getBoardWidth.bind(this),
-	            clearBoard: this.clearBoard.bind(this)
+	            clearBoardStates: this.clearBoardStates.bind(this)
 	        };
 	    };
 	    return Model;
@@ -11289,7 +11289,7 @@
 	                alert("Game is over!");
 	                clearTimeout(_this.timer);
 	                _this.model.changeStopGame(true);
-	                _this.model.clearBoard();
+	                _this.model.clearBoardStates();
 	            }
 	        }, 1000);
 	    };
@@ -11302,7 +11302,7 @@
 	    Controller.prototype.restartGame = function () {
 	        clearTimeout(this.timer);
 	        this.model.boardInit();
-	        this.model.clearBoard();
+	        this.model.clearBoardStates();
 	        this.model.changeStopGame(false);
 	        var currentBoard = this.model.getCurrentBoard();
 	        var boardWidth = this.model.getBoardWidth();
