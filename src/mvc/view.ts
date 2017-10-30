@@ -16,7 +16,7 @@ interface IPubsub {
     [index: string]: [(data?: CallBackData) => void];
 }
 type EventType = "click" | "blur";
-export default class View {
+class View {
     private $startButton: HTMLButtonElement;
     private $pauseButton: HTMLButtonElement;
     private $restartButton: HTMLButtonElement;
@@ -115,3 +115,5 @@ export default class View {
 function objectLength(object: IBoard): number {
     return Object.keys(object).length;
 }
+
+export default View;

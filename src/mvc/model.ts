@@ -8,7 +8,7 @@ interface ICell {
 interface IBoard {
     [index: string]: ICell;
 }
-export default class Model {
+class Model {
     private boardStates: IBoard[] = [];
     public board: IBoard;
     public width: number;
@@ -188,3 +188,5 @@ function getCellRepresentation(x: number, y: number): string {
 function objectsEqual(a: IBoard, b: IBoard): boolean {
     return equal(a, b);
 }
+
+export default Model;
