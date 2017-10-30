@@ -34,11 +34,11 @@ class View {
         this.$widthInput = $("#widthInput")[0] as HTMLInputElement;
         this.$heightInput = $("#heightInput")[0] as HTMLInputElement;
 
-        this.addPublisher(self, this.$startButton, "click", "startGame");
-        this.addPublisher(self, this.$pauseButton, "click", "pauseGame");
-        this.addPublisher(self, this.$restartButton, "click", "restartGame");
-        this.addPublisher(self, this.$widthInput, "blur", "changeWidth", {passValue: true});
-        this.addPublisher(self, this.$heightInput, "blur", "changeHeight", {passValue: true});
+        this.addPublisher(this.$startButton, "click", "startGame");
+        this.addPublisher(this.$pauseButton, "click", "pauseGame");
+        this.addPublisher(this.$restartButton, "click", "restartGame");
+        this.addPublisher(this.$widthInput, "blur", "changeWidth", {passValue: true});
+        this.addPublisher(this.$heightInput, "blur", "changeHeight", {passValue: true});
         this.updateCellClickHandlers = function() {
             this.$cells = $(".cell");
             $(this.$cells).on("click", function() {
@@ -70,15 +70,15 @@ class View {
             return key;
         }
     }
-    public addPublisher(context: this, el: HTMLElement, eventType: EventType, publisherMessage: string, param?: {passValue: boolean}) {
+    public addPublisher(el: HTMLElement, eventType: EventType, publisherMessage: string, param?: {passValue: boolean}) {
         if (param && param.passValue) {
-            $(el).on(eventType, function(e: JQuery.Event) {
-                context.publish(publisherMessage, (e.currentTarget as HTMLInputElement).value);
+            $(el).on(eventType, (e: JQuery.Event) => {
+                this.publish(publisherMessage, (e.currentTarget as HTMLInputElement).value);
             });
             return;
         }
-        $(el).on(eventType, function() {
-            context.publish(publisherMessage);
+        $(el).on(eventType, () => {
+            this.publish(publisherMessage);
         });
     }
     public subscribe(eventName: string, fn: CallbackSub): void {
