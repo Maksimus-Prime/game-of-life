@@ -3,9 +3,6 @@ import * as chai from 'chai';
 import * as sinon from 'sinon';
 let expect = chai.expect;
 import Model from './../src/mvc/model';
-import View from './../src/mvc/view';
-import Controller from './../src/mvc/controller';
-
 interface ICell {
     x: number;
     y: number;
@@ -14,8 +11,6 @@ interface ICell {
 interface IBoard {
     [index: string]: ICell;
 }
-type CallBackData = number | string | void | undefined;
-type CallbackSub = (data?: CallBackData) => void;
 interface IModel {
     boardInit(): void;
     nextBoardState(): void;
@@ -28,28 +23,16 @@ interface IModel {
     getBoardWidth(): number;
     clearBoardStates(): void;
 }
-interface IView {
-    draw(board: IBoard, boardWidth: number): void;
-    toggleCellClass(cell: HTMLHtmlElement): string | void;
-    subscribe(eventName: string, fn: CallbackSub): void;
-    unsubscribe(eventName: string, fn: CallbackSub): void;
-}
 
 let model: IModel;
 let width: number = 3;
 let height: number = 3;
-let view: IView;
-let controller;
 
 describe('model', () => {
     beforeEach(function() {
         width = 3;
         height = 3;
         model = (new Model(width, height)).getModel();
-        view = (new View()).getView();
-        controller = new Controller();
-        controller.setModel(model);
-        controller.setView(view);
         model.boardInit();
     });
     it('model should be an object', () => {
@@ -119,24 +102,6 @@ describe('model', () => {
             expect(stopStatus).equal(false);
             model.changeStopGame(true);
             expect(model.isGameStop()).equal(true);
-        });
-    });
-});
-
-describe('view', () => {
-    beforeEach(function() {
-        width = 3;
-        height = 3;
-        model = (new Model(width, height)).getModel();
-        view = (new View()).getView();
-        controller = new Controller();
-        controller.setModel(model);
-        controller.setView(view);
-        model.boardInit();
-    });
-    describe('view.toggleCellClass', () => {
-        it('view.toggleCellClass should be a function', () => {
-            expect(view.toggleCellClass).to.be.an('function');
         });
     });
 });
