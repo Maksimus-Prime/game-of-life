@@ -1,4 +1,5 @@
 import equal = require("deep-equal");
+import es6BindAll = require("es6bindall");
 
 interface ICell {
   x: number;
@@ -26,11 +27,13 @@ class Model {
   public width: number;
   public height: number;
   public stopGame: boolean;
+  private bindMethods: string[] = ["boardInit", "nextBoardState", "editCellAliveState", "changeWidth", "changeHeight", "changeStopGame", "isGameStop", "getCurrentBoard", "getBoardWidth", "clearBoardStates"];
   constructor(width: number, height: number) {
     this.board = {};
     this.width = width;
     this.height = height;
     this.stopGame = false;
+    es6BindAll(this, this.bindMethods);
   }
   public boardInit(): void {
     let currentCell: ICell;
@@ -176,16 +179,16 @@ class Model {
   }
   public getModel(): IModel {
     return {
-      boardInit: this.boardInit.bind(this),
-      nextBoardState: this.nextBoardState.bind(this),
-      editCellAliveState: this.editCellAliveState.bind(this),
-      changeWidth: this.changeWidth.bind(this),
-      changeHeight: this.changeHeight.bind(this),
-      changeStopGame: this.changeStopGame.bind(this),
-      isGameStop: this.isGameStop.bind(this),
-      getCurrentBoard: this.getCurrentBoard.bind(this),
-      getBoardWidth: this.getBoardWidth.bind(this),
-      clearBoardStates: this.clearBoardStates.bind(this),
+      boardInit: this.boardInit,
+      nextBoardState: this.nextBoardState,
+      editCellAliveState: this.editCellAliveState,
+      changeWidth: this.changeWidth,
+      changeHeight: this.changeHeight,
+      changeStopGame: this.changeStopGame,
+      isGameStop: this.isGameStop,
+      getCurrentBoard: this.getCurrentBoard,
+      getBoardWidth: this.getBoardWidth,
+      clearBoardStates: this.clearBoardStates,
     };
   }
 }

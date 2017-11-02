@@ -1,4 +1,5 @@
 import * as $ from "jquery";
+import es6BindAll = require("es6bindall");
 
 interface ICell {
   x: number;
@@ -9,7 +10,7 @@ interface IBoard {
   [index: string]: ICell;
 }
 type CallBackData = number | string | void | undefined;
-type CallbackSub = (data?: CallBackData) => void;
+type CallbackSub = (data: string | number) => void;
 interface IModel {
   boardInit(): void;
   nextBoardState(): void;
@@ -34,7 +35,7 @@ class Controller {
   private timer: number;
   private bindMethods: string[] = ["startGame", "pauseGame", "restartGame", "changeWidth", "changeHeight", "cellClicked"];
   public init() {
-    this.bindAllMethods(this, this.bindMethods);
+    es6BindAll(this, this.bindMethods);
     this.initGame();
     this.initSubscribers();
   }
@@ -96,11 +97,6 @@ class Controller {
   }
   public setView(view: IView): void {
     this.view = view;
-  }
-  private bindAllMethods(context: any, methodNames: string[]): void {
-    methodNames.map(function(methodName: string) {
-      context[methodName] = context[methodName].bind(context);
-    });
   }
   private initSubscribers(): void {
     this.view.subscribe("startGame", this.startGame);

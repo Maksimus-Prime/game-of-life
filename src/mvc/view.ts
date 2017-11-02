@@ -2,6 +2,7 @@ import * as $ from "jquery";
 import "./../jquery.tmpl.js";
 import "./../jquery.tmpl.ts";
 import "./view.css";
+import es6BindAll = require("es6bindall");
 import Pubsub from "./../pubsub/pubsub";
 
 interface ICell {
@@ -25,23 +26,24 @@ interface IView {
   unsubscribe(eventName: string, fn: CallbackSub): void;
 }
 class View {
-  private $startButton: HTMLButtonElement;
-  private $pauseButton: HTMLButtonElement;
-  private $restartButton: HTMLButtonElement;
-  private $widthInput: HTMLInputElement;
-  private $heightInput: HTMLInputElement;
+  private startButton: HTMLButtonElement;
+  private pauseButton: HTMLButtonElement;
+  private restartButton: HTMLButtonElement;
+  private widthInput: HTMLInputElement;
+  private heightInput: HTMLInputElement;
   private $cells: JQuery<HTMLElement>;
+  private $board: JQuery<HTMLElement>;
   private pubsub: any;
   private updateCellClickHandlers: VoidFunction;
   private bindMethods: string[] = ["draw", "toggleCellClass"];
   constructor() {
     this.pubsub = new Pubsub();
-    this.bindAllMethods(this, this.bindMethods);
+    es6BindAll(this, this.bindMethods);
     this.initDOMElements();
     this.initPublishers();
   }
   public draw(board: IBoard, boardWidth: number): void {
-    $("#board").html("");
+    this.$board.html("");
     $.template("sample", '<i class="cell" id="' + "x" + "${x}" + "y" + '${y}"></i>');
     $.template("sampleDead", '<i class="cell dead" id="' + "x" + "${x}" + "y" + '${y}"></i>');
     const len: number = objectLength(board);
@@ -52,7 +54,7 @@ class View {
         $.tmpl("sampleDead", board[key]).appendTo("#board");
       }
     }
-    $("#board").attr("style", "width: " + (boardWidth * 20) + "px");
+    this.$board.attr("style", "width: " + (boardWidth * 20) + "px");
     this.updateCellClickHandlers();
   }
   public toggleCellClass(cell: HTMLHtmlElement): string | void {
@@ -63,28 +65,23 @@ class View {
       return key;
     }
   }
-  public addPublisher(el: HTMLElement, eventType: EventType, publisherMessage: string, handler: any, param?: {passValue: boolean}) {
+  public addPublisher(el: HTMLElement, eventType: EventType, publisherMessage: string, param?: {passValue: boolean}) {
     if (param && param.passValue) {
       $(el).on(eventType, (e: JQuery.Event) => {
-        handler(publisherMessage, (e.currentTarget as HTMLInputElement).value);
+        this.pubsub.publish(publisherMessage, (e.currentTarget as HTMLInputElement).value);
       });
       return;
     }
     $(el).on(eventType, () => {
-      handler(publisherMessage);
-    });
-  }
-  private bindAllMethods(context: any, methodNames: string[]): void {
-    methodNames.map(function(methodName: string) {
-      context[methodName] = context[methodName].bind(context);
+      this.pubsub.publish(publisherMessage);
     });
   }
   private initPublishers(): void {
-    this.addPublisher(this.$startButton, "click", "startGame", this.pubsub.publish);
-    this.addPublisher(this.$pauseButton, "click", "pauseGame", this.pubsub.publish);
-    this.addPublisher(this.$restartButton, "click", "restartGame", this.pubsub.publish);
-    this.addPublisher(this.$widthInput, "blur", "changeWidth", this.pubsub.publish, {passValue: true});
-    this.addPublisher(this.$heightInput, "blur", "changeHeight", this.pubsub.publish, {passValue: true});
+    this.addPublisher(this.startButton, "click", "startGame");
+    this.addPublisher(this.pauseButton, "click", "pauseGame");
+    this.addPublisher(this.restartButton, "click", "restartGame");
+    this.addPublisher(this.widthInput, "blur", "changeWidth", {passValue: true});
+    this.addPublisher(this.heightInput, "blur", "changeHeight", {passValue: true});
     this.updateCellClickHandlers = function() {
       this.$cells = $(".cell");
       $(this.$cells).on("click", (e: JQuery.Event) => {
@@ -94,11 +91,12 @@ class View {
     };
   }
   private initDOMElements(): void {
-    this.$startButton = $("#startButton")[0] as HTMLButtonElement;
-    this.$pauseButton = $("#pauseButton")[0] as HTMLButtonElement;
-    this.$restartButton = $("#restartButton")[0] as HTMLButtonElement;
-    this.$widthInput = $("#widthInput")[0] as HTMLInputElement;
-    this.$heightInput = $("#heightInput")[0] as HTMLInputElement;
+    this.startButton = $("#startButton")[0] as HTMLButtonElement;
+    this.pauseButton = $("#pauseButton")[0] as HTMLButtonElement;
+    this.restartButton = $("#restartButton")[0] as HTMLButtonElement;
+    this.widthInput = $("#widthInput")[0] as HTMLInputElement;
+    this.heightInput = $("#heightInput")[0] as HTMLInputElement;
+    this.$board = $("#board");
   }
   public getView(): IView {
     return {
