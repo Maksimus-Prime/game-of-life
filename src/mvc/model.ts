@@ -94,13 +94,13 @@ class Model {
     let key: string;
     let flag: boolean = false;
     let flagNum: number = 0;
-    for (key in this.board) {
-      if (this.board.hasOwnProperty(key)) {
-        const currentCell: ICell = this.board[key];
-        const tempCell: ICell = this.calculateNextCellState(key);
-        tempBoard[key] = tempCell;
+    Object.keys(this.board).map((cell) => {
+      if (this.board.hasOwnProperty(cell)) {
+        const currentCell: ICell = this.board[cell];
+        const tempCell: ICell = this.calculateNextCellState(cell);
+        tempBoard[cell] = tempCell;
       }
-    }
+    });
     // check 1
     this.boardStates.map(function(boardState: IBoard) {
       if (objectsEqual(boardState, tempBoard)) {
@@ -112,11 +112,11 @@ class Model {
       return;
     }
     // check 2
-    for (const j in this.board) {
-      if (this.board[j].alive) {
+    Object.keys(this.board).map((cell) => {
+      if (this.board[cell].alive) {
         flagNum++;
       }
-    }
+    });
     if (flagNum === 0) {
       this.stopGame = true;
       return;
@@ -137,30 +137,30 @@ class Model {
     const temWidth = this.width;
     this.width = newWidth;
     this.boardInit();
-    for (const keyy in this.board ) {
-      if (this.board.hasOwnProperty(keyy)) {
-        for (const key in temObj) {
-          if (keyy === key) {
-              this.board[getCellRepresentation(temObj[keyy].x, temObj[keyy].y)] = temObj[keyy];
+    Object.keys(this.board).map((cell) => {
+      if (this.board.hasOwnProperty(cell)) {
+        Object.keys(temObj).map((tempCell) => {
+          if (cell === tempCell) {
+              this.board[getCellRepresentation(temObj[cell].x, temObj[cell].y)] = temObj[cell];
           }
-        }
+        });
       }
-    }
+    });
   }
   public changeHeight(newHeight: number): void {
     const temObj = jQuery.extend(true, {}, this.board);
     const temHeight = this.height;
     this.height = newHeight;
     this.boardInit();
-    for (const keyy in this.board ) {
-      if (this.board.hasOwnProperty(keyy)) {
-        for (const key in temObj) {
-          if (keyy === key) {
-            this.board[getCellRepresentation(temObj[keyy].x, temObj[keyy].y)] = temObj[keyy];
+    Object.keys(this.board).map((cell) => {
+      if (this.board.hasOwnProperty(cell)) {
+        Object.keys(temObj).map((tempCell) => {
+          if (cell === tempCell) {
+              this.board[getCellRepresentation(temObj[cell].x, temObj[cell].y)] = temObj[cell];
           }
-        }
+        });
       }
-    }
+    });
   }
   public changeStopGame(stopGame: boolean): void {
     this.stopGame = stopGame;

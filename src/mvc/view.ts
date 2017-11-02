@@ -46,14 +46,13 @@ class View {
     this.$board.html("");
     $.template("sample", '<i class="cell" id="' + "x" + "${x}" + "y" + '${y}"></i>');
     $.template("sampleDead", '<i class="cell dead" id="' + "x" + "${x}" + "y" + '${y}"></i>');
-    const len: number = objectLength(board);
-    for ( const key in board ) {
-      if (board[key].alive) {
-        $.tmpl("sample", board[key]).appendTo("#board");
+    Object.keys(board).map((cell) => {
+      if (board[cell].alive) {
+        $.tmpl("sample", board[cell]).appendTo("#board");
       } else {
-        $.tmpl("sampleDead", board[key]).appendTo("#board");
+        $.tmpl("sampleDead", board[cell]).appendTo("#board");
       }
-    }
+    });
     this.$board.attr("style", "width: " + (boardWidth * 20) + "px");
     this.updateCellClickHandlers();
   }

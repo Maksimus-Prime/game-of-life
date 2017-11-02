@@ -132,18 +132,19 @@
 	        return tempCell;
 	    };
 	    Model.prototype.nextBoardState = function () {
+	        var _this = this;
 	        var currentBoard = this.board;
 	        var tempBoard = {};
 	        var key;
 	        var flag = false;
 	        var flagNum = 0;
-	        for (key in this.board) {
-	            if (this.board.hasOwnProperty(key)) {
-	                var currentCell = this.board[key];
-	                var tempCell = this.calculateNextCellState(key);
-	                tempBoard[key] = tempCell;
+	        Object.keys(this.board).map(function (cell) {
+	            if (_this.board.hasOwnProperty(cell)) {
+	                var currentCell = _this.board[cell];
+	                var tempCell = _this.calculateNextCellState(cell);
+	                tempBoard[cell] = tempCell;
 	            }
-	        }
+	        });
 	        // check 1
 	        this.boardStates.map(function (boardState) {
 	            if (objectsEqual(boardState, tempBoard)) {
@@ -155,11 +156,11 @@
 	            return;
 	        }
 	        // check 2
-	        for (var j in this.board) {
-	            if (this.board[j].alive) {
+	        Object.keys(this.board).map(function (cell) {
+	            if (_this.board[cell].alive) {
 	                flagNum++;
 	            }
-	        }
+	        });
 	        if (flagNum === 0) {
 	            this.stopGame = true;
 	            return;
@@ -176,34 +177,36 @@
 	        }
 	    };
 	    Model.prototype.changeWidth = function (newWidth) {
+	        var _this = this;
 	        var temObj = jQuery.extend(true, {}, this.board);
 	        var temWidth = this.width;
 	        this.width = newWidth;
 	        this.boardInit();
-	        for (var keyy in this.board) {
-	            if (this.board.hasOwnProperty(keyy)) {
-	                for (var key in temObj) {
-	                    if (keyy === key) {
-	                        this.board[getCellRepresentation(temObj[keyy].x, temObj[keyy].y)] = temObj[keyy];
+	        Object.keys(this.board).map(function (cell) {
+	            if (_this.board.hasOwnProperty(cell)) {
+	                Object.keys(temObj).map(function (tempCell) {
+	                    if (cell === tempCell) {
+	                        _this.board[getCellRepresentation(temObj[cell].x, temObj[cell].y)] = temObj[cell];
 	                    }
-	                }
+	                });
 	            }
-	        }
+	        });
 	    };
 	    Model.prototype.changeHeight = function (newHeight) {
+	        var _this = this;
 	        var temObj = jQuery.extend(true, {}, this.board);
 	        var temHeight = this.height;
 	        this.height = newHeight;
 	        this.boardInit();
-	        for (var keyy in this.board) {
-	            if (this.board.hasOwnProperty(keyy)) {
-	                for (var key in temObj) {
-	                    if (keyy === key) {
-	                        this.board[getCellRepresentation(temObj[keyy].x, temObj[keyy].y)] = temObj[keyy];
+	        Object.keys(this.board).map(function (cell) {
+	            if (_this.board.hasOwnProperty(cell)) {
+	                Object.keys(temObj).map(function (tempCell) {
+	                    if (cell === tempCell) {
+	                        _this.board[getCellRepresentation(temObj[cell].x, temObj[cell].y)] = temObj[cell];
 	                    }
-	                }
+	                });
 	            }
-	        }
+	        });
 	    };
 	    Model.prototype.changeStopGame = function (stopGame) {
 	        this.stopGame = stopGame;
@@ -10721,14 +10724,13 @@
 	        this.$board.html("");
 	        $.template("sample", '<i class="cell" id="' + "x" + "${x}" + "y" + '${y}"></i>');
 	        $.template("sampleDead", '<i class="cell dead" id="' + "x" + "${x}" + "y" + '${y}"></i>');
-	        var len = objectLength(board);
-	        for (var key in board) {
-	            if (board[key].alive) {
-	                $.tmpl("sample", board[key]).appendTo("#board");
+	        Object.keys(board).map(function (cell) {
+	            if (board[cell].alive) {
+	                $.tmpl("sample", board[cell]).appendTo("#board");
 	            } else {
-	                $.tmpl("sampleDead", board[key]).appendTo("#board");
+	                $.tmpl("sampleDead", board[cell]).appendTo("#board");
 	            }
-	        }
+	        });
 	        this.$board.attr("style", "width: " + boardWidth * 20 + "px");
 	        this.updateCellClickHandlers();
 	    };
