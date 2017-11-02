@@ -2,6 +2,7 @@ import * as $ from "jquery";
 import "./../jquery.tmpl.js";
 import "./../jquery.tmpl.ts";
 import "./view.css";
+import Pubsub from "./../pubsub/pubsub";
 
 interface ICell {
   x: number;
@@ -30,11 +31,11 @@ class View {
   private $widthInput: HTMLInputElement;
   private $heightInput: HTMLInputElement;
   private $cells: JQuery<HTMLElement>;
-  private pubsub: IPubsub;
+  private pubsub: any;
   private updateCellClickHandlers: VoidFunction;
-  private bindMethods: string[] = ["publish"];
+  private bindMethods: string[] = ["draw", "toggleCellClass"];
   constructor() {
-    this.pubsub = {};
+    this.pubsub = new Pubsub();
     this.bindAllMethods(this, this.bindMethods);
     this.initDOMElements();
     this.initPublishers();
@@ -73,43 +74,22 @@ class View {
       handler(publisherMessage);
     });
   }
-  public subscribe(eventName: string, fn: CallbackSub): void {
-    this.pubsub[eventName] = this.pubsub[eventName] || [];
-    this.pubsub[eventName].push(fn);
-  }
-  public unsubscribe(eventName: string, fn: CallbackSub): void {
-    if (this.pubsub[eventName]) {
-      for (let i: number = 0; i < this.pubsub[eventName].length; i++) {
-        if (this.pubsub[eventName][i] === fn) {
-          this.pubsub[eventName].splice(i, 1);
-          break;
-        }
-      }
-    }
-  }
-  public publish(eventName: string, data?: CallBackData): void {
-    if (this.pubsub[eventName]) {
-      this.pubsub[eventName].forEach(function(fn: CallbackSub) {
-        fn(data);
-      });
-    }
-  }
   private bindAllMethods(context: any, methodNames: string[]): void {
     methodNames.map(function(methodName: string) {
       context[methodName] = context[methodName].bind(context);
     });
   }
   private initPublishers(): void {
-    this.addPublisher(this.$startButton, "click", "startGame", this.publish);
-    this.addPublisher(this.$pauseButton, "click", "pauseGame", this.publish);
-    this.addPublisher(this.$restartButton, "click", "restartGame", this.publish);
-    this.addPublisher(this.$widthInput, "blur", "changeWidth", this.publish, {passValue: true});
-    this.addPublisher(this.$heightInput, "blur", "changeHeight", this.publish, {passValue: true});
+    this.addPublisher(this.$startButton, "click", "startGame", this.pubsub.publish);
+    this.addPublisher(this.$pauseButton, "click", "pauseGame", this.pubsub.publish);
+    this.addPublisher(this.$restartButton, "click", "restartGame", this.pubsub.publish);
+    this.addPublisher(this.$widthInput, "blur", "changeWidth", this.pubsub.publish, {passValue: true});
+    this.addPublisher(this.$heightInput, "blur", "changeHeight", this.pubsub.publish, {passValue: true});
     this.updateCellClickHandlers = function() {
       this.$cells = $(".cell");
       $(this.$cells).on("click", (e: JQuery.Event) => {
         const cellKey = this.toggleCellClass(e.currentTarget as HTMLHtmlElement);
-        this.publish("cellClicked", cellKey);
+        this.pubsub.publish("cellClicked", cellKey);
       });
     };
   }
@@ -122,10 +102,10 @@ class View {
   }
   public getView(): IView {
     return {
-      draw: this.draw.bind(this),
-      toggleCellClass: this.toggleCellClass.bind(this),
-      subscribe: this.subscribe.bind(this),
-      unsubscribe: this.unsubscribe.bind(this),
+      draw: this.draw,
+      toggleCellClass: this.toggleCellClass,
+      subscribe: this.pubsub.subscribe,
+      unsubscribe: this.pubsub.unsubscribe,
     };
   }
 }

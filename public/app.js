@@ -49,7 +49,7 @@
 	Object.defineProperty(exports, "__esModule", { value: true });
 	var model_1 = __webpack_require__(1);
 	var view_1 = __webpack_require__(6);
-	var controller_1 = __webpack_require__(10);
+	var controller_1 = __webpack_require__(11);
 	var $ = __webpack_require__(2);
 	$(document).ready(function () {
 	    var model = new model_1.default(5, 5).getModel();
@@ -10653,10 +10653,11 @@
 	__webpack_require__(7);
 	__webpack_require__(8);
 	__webpack_require__(9);
+	var pubsub_1 = __webpack_require__(10);
 	var View = /** @class */function () {
 	    function View() {
-	        this.bindMethods = ["publish"];
-	        this.pubsub = {};
+	        this.bindMethods = ["draw", "toggleCellClass"];
+	        this.pubsub = new pubsub_1.default();
 	        this.bindAllMethods(this, this.bindMethods);
 	        this.initDOMElements();
 	        this.initPublishers();
@@ -10695,44 +10696,23 @@
 	            handler(publisherMessage);
 	        });
 	    };
-	    View.prototype.subscribe = function (eventName, fn) {
-	        this.pubsub[eventName] = this.pubsub[eventName] || [];
-	        this.pubsub[eventName].push(fn);
-	    };
-	    View.prototype.unsubscribe = function (eventName, fn) {
-	        if (this.pubsub[eventName]) {
-	            for (var i = 0; i < this.pubsub[eventName].length; i++) {
-	                if (this.pubsub[eventName][i] === fn) {
-	                    this.pubsub[eventName].splice(i, 1);
-	                    break;
-	                }
-	            }
-	        }
-	    };
-	    View.prototype.publish = function (eventName, data) {
-	        if (this.pubsub[eventName]) {
-	            this.pubsub[eventName].forEach(function (fn) {
-	                fn(data);
-	            });
-	        }
-	    };
 	    View.prototype.bindAllMethods = function (context, methodNames) {
 	        methodNames.map(function (methodName) {
 	            context[methodName] = context[methodName].bind(context);
 	        });
 	    };
 	    View.prototype.initPublishers = function () {
-	        this.addPublisher(this.$startButton, "click", "startGame", this.publish);
-	        this.addPublisher(this.$pauseButton, "click", "pauseGame", this.publish);
-	        this.addPublisher(this.$restartButton, "click", "restartGame", this.publish);
-	        this.addPublisher(this.$widthInput, "blur", "changeWidth", this.publish, { passValue: true });
-	        this.addPublisher(this.$heightInput, "blur", "changeHeight", this.publish, { passValue: true });
+	        this.addPublisher(this.$startButton, "click", "startGame", this.pubsub.publish);
+	        this.addPublisher(this.$pauseButton, "click", "pauseGame", this.pubsub.publish);
+	        this.addPublisher(this.$restartButton, "click", "restartGame", this.pubsub.publish);
+	        this.addPublisher(this.$widthInput, "blur", "changeWidth", this.pubsub.publish, { passValue: true });
+	        this.addPublisher(this.$heightInput, "blur", "changeHeight", this.pubsub.publish, { passValue: true });
 	        this.updateCellClickHandlers = function () {
 	            var _this = this;
 	            this.$cells = $(".cell");
 	            $(this.$cells).on("click", function (e) {
 	                var cellKey = _this.toggleCellClass(e.currentTarget);
-	                _this.publish("cellClicked", cellKey);
+	                _this.pubsub.publish("cellClicked", cellKey);
 	            });
 	        };
 	    };
@@ -10745,10 +10725,10 @@
 	    };
 	    View.prototype.getView = function () {
 	        return {
-	            draw: this.draw.bind(this),
-	            toggleCellClass: this.toggleCellClass.bind(this),
-	            subscribe: this.subscribe.bind(this),
-	            unsubscribe: this.unsubscribe.bind(this)
+	            draw: this.draw,
+	            toggleCellClass: this.toggleCellClass,
+	            subscribe: this.pubsub.subscribe,
+	            unsubscribe: this.pubsub.unsubscribe
 	        };
 	    };
 	    return View;
@@ -11272,6 +11252,49 @@
 
 /***/ }),
 /* 10 */
+/***/ (function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", { value: true });
+	var Pubsub = /** @class */function () {
+	    function Pubsub() {
+	        this.bindMethods = ["subscribe", "unsubscribe", "publish"];
+	        this.pubsub = {};
+	        this.bindAllMethods(this, this.bindMethods);
+	    }
+	    Pubsub.prototype.subscribe = function (eventName, fn) {
+	        this.pubsub[eventName] = this.pubsub[eventName] || [];
+	        this.pubsub[eventName].push(fn);
+	    };
+	    Pubsub.prototype.unsubscribe = function (eventName, fn) {
+	        if (this.pubsub[eventName]) {
+	            for (var i = 0; i < this.pubsub[eventName].length; i++) {
+	                if (this.pubsub[eventName][i] === fn) {
+	                    this.pubsub[eventName].splice(i, 1);
+	                    break;
+	                }
+	            }
+	        }
+	    };
+	    Pubsub.prototype.publish = function (eventName, data) {
+	        if (this.pubsub[eventName]) {
+	            this.pubsub[eventName].forEach(function (fn) {
+	                fn(data);
+	            });
+	        }
+	    };
+	    Pubsub.prototype.bindAllMethods = function (context, methodNames) {
+	        methodNames.map(function (methodName) {
+	            context[methodName] = context[methodName].bind(context);
+	        });
+	    };
+	    return Pubsub;
+	}();
+	exports.default = Pubsub;
+
+/***/ }),
+/* 11 */
 /***/ (function(module, exports) {
 
 	"use strict";
