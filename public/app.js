@@ -49,7 +49,7 @@
 	Object.defineProperty(exports, "__esModule", { value: true });
 	var model_1 = __webpack_require__(1);
 	var view_1 = __webpack_require__(6);
-	var controller_1 = __webpack_require__(9);
+	var controller_1 = __webpack_require__(10);
 	var $ = __webpack_require__(2);
 	$(document).ready(function () {
 	    var model = new model_1.default(5, 5).getModel();
@@ -142,12 +142,11 @@
 	            }
 	        }
 	        // check 1
-	        for (var _i = 0, _a = this.boardStates; _i < _a.length; _i++) {
-	            var boardState = _a[_i];
+	        this.boardStates.map(function (boardState) {
 	            if (objectsEqual(boardState, tempBoard)) {
 	                flag = true;
 	            }
-	        }
+	        });
 	        if (flag) {
 	            this.stopGame = true;
 	            return;
@@ -10653,27 +10652,14 @@
 	var $ = __webpack_require__(2);
 	__webpack_require__(7);
 	__webpack_require__(8);
+	__webpack_require__(9);
 	var View = /** @class */function () {
 	    function View() {
-	        var self = this;
+	        this.bindMethods = ["publish"];
 	        this.pubsub = {};
-	        this.$startButton = $("#startButton")[0];
-	        this.$pauseButton = $("#pauseButton")[0];
-	        this.$restartButton = $("#restartButton")[0];
-	        this.$widthInput = $("#widthInput")[0];
-	        this.$heightInput = $("#heightInput")[0];
-	        this.addPublisher(this.$startButton, "click", "startGame");
-	        this.addPublisher(this.$pauseButton, "click", "pauseGame");
-	        this.addPublisher(this.$restartButton, "click", "restartGame");
-	        this.addPublisher(this.$widthInput, "blur", "changeWidth", { passValue: true });
-	        this.addPublisher(this.$heightInput, "blur", "changeHeight", { passValue: true });
-	        this.updateCellClickHandlers = function () {
-	            this.$cells = $(".cell");
-	            $(this.$cells).on("click", function () {
-	                var cellKey = self.toggleCellClass(this);
-	                self.publish("cellClicked", cellKey);
-	            });
-	        };
+	        this.bindAllMethods(this, this.bindMethods);
+	        this.initDOMElements();
+	        this.initPublishers();
 	    }
 	    View.prototype.draw = function (board, boardWidth) {
 	        $("#board").html("");
@@ -10698,16 +10684,15 @@
 	            return key;
 	        }
 	    };
-	    View.prototype.addPublisher = function (el, eventType, publisherMessage, param) {
-	        var _this = this;
+	    View.prototype.addPublisher = function (el, eventType, publisherMessage, handler, param) {
 	        if (param && param.passValue) {
 	            $(el).on(eventType, function (e) {
-	                _this.publish(publisherMessage, e.currentTarget.value);
+	                handler(publisherMessage, e.currentTarget.value);
 	            });
 	            return;
 	        }
 	        $(el).on(eventType, function () {
-	            _this.publish(publisherMessage);
+	            handler(publisherMessage);
 	        });
 	    };
 	    View.prototype.subscribe = function (eventName, fn) {
@@ -10730,6 +10715,33 @@
 	                fn(data);
 	            });
 	        }
+	    };
+	    View.prototype.bindAllMethods = function (context, methodNames) {
+	        methodNames.map(function (methodName) {
+	            context[methodName] = context[methodName].bind(context);
+	        });
+	    };
+	    View.prototype.initPublishers = function () {
+	        this.addPublisher(this.$startButton, "click", "startGame", this.publish);
+	        this.addPublisher(this.$pauseButton, "click", "pauseGame", this.publish);
+	        this.addPublisher(this.$restartButton, "click", "restartGame", this.publish);
+	        this.addPublisher(this.$widthInput, "blur", "changeWidth", this.publish, { passValue: true });
+	        this.addPublisher(this.$heightInput, "blur", "changeHeight", this.publish, { passValue: true });
+	        this.updateCellClickHandlers = function () {
+	            var _this = this;
+	            this.$cells = $(".cell");
+	            $(this.$cells).on("click", function (e) {
+	                var cellKey = _this.toggleCellClass(e.currentTarget);
+	                _this.publish("cellClicked", cellKey);
+	            });
+	        };
+	    };
+	    View.prototype.initDOMElements = function () {
+	        this.$startButton = $("#startButton")[0];
+	        this.$pauseButton = $("#pauseButton")[0];
+	        this.$restartButton = $("#restartButton")[0];
+	        this.$widthInput = $("#widthInput")[0];
+	        this.$heightInput = $("#heightInput")[0];
 	    };
 	    View.prototype.getView = function () {
 	        return {
@@ -11256,19 +11268,23 @@
 /* 9 */
 /***/ (function(module, exports) {
 
+	// removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports) {
+
 	"use strict";
 
 	Object.defineProperty(exports, "__esModule", { value: true });
 	var Controller = /** @class */function () {
-	    function Controller() {}
+	    function Controller() {
+	        this.bindMethods = ["startGame", "pauseGame", "restartGame", "changeWidth", "changeHeight", "cellClicked"];
+	    }
 	    Controller.prototype.init = function () {
+	        this.bindAllMethods(this, this.bindMethods);
 	        this.initGame();
-	        this.view.subscribe("startGame", this.startGame.bind(this));
-	        this.view.subscribe("pauseGame", this.pauseGame.bind(this));
-	        this.view.subscribe("restartGame", this.restartGame.bind(this));
-	        this.view.subscribe("changeWidth", this.changeWidth.bind(this));
-	        this.view.subscribe("changeHeight", this.changeHeight.bind(this));
-	        this.view.subscribe("cellClicked", this.cellClicked.bind(this));
+	        this.initSubscribers();
 	    };
 	    Controller.prototype.initGame = function () {
 	        this.model.boardInit();
@@ -11329,6 +11345,19 @@
 	    };
 	    Controller.prototype.setView = function (view) {
 	        this.view = view;
+	    };
+	    Controller.prototype.bindAllMethods = function (context, methodNames) {
+	        methodNames.map(function (methodName) {
+	            context[methodName] = context[methodName].bind(context);
+	        });
+	    };
+	    Controller.prototype.initSubscribers = function () {
+	        this.view.subscribe("startGame", this.startGame);
+	        this.view.subscribe("pauseGame", this.pauseGame);
+	        this.view.subscribe("restartGame", this.restartGame);
+	        this.view.subscribe("changeWidth", this.changeWidth);
+	        this.view.subscribe("changeHeight", this.changeHeight);
+	        this.view.subscribe("cellClicked", this.cellClicked);
 	    };
 	    return Controller;
 	}();

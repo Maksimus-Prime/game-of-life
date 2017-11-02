@@ -22,4 +22,4 @@ npm run prod
 ```
 npm run tst
 ```
-Look at the [result](https://maksimus-prime.github.io/game-of-life/).
+Look at the [result](https://maksimus-prime.github.io/game-of-life/public).
