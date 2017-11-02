@@ -1,15 +1,16 @@
 {
-    "defaultSeverity": "warning",
-    "extends": [
-        "tslint:recommended"
-    ],
-    "jsRules": {},
+  "defaultSeverity": "warning",
+  "extends": [
+    "tslint:recommended"
+  ],
+  "jsRules": {},
     "rules": {
-    	"only-arrow-functions": false,
-    	"object-literal-sort-keys": false,
-    	"max-line-length": false,
-        "no-any": true,
-        "member-ordering": false
-    },
-    "rulesDirectory": []
+    "only-arrow-functions": false,
+    "object-literal-sort-keys": false,
+    "max-line-length": false,
+    "no-any": true,
+    "member-ordering": false,
+    "indent": [true, "spaces", 2]
+  },
+  "rulesDirectory": []
 }
