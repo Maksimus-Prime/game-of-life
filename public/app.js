@@ -48,8 +48,8 @@
 
 	Object.defineProperty(exports, "__esModule", { value: true });
 	var model_1 = __webpack_require__(1);
-	var view_1 = __webpack_require__(6);
-	var controller_1 = __webpack_require__(11);
+	var view_1 = __webpack_require__(7);
+	var controller_1 = __webpack_require__(12);
 	var $ = __webpack_require__(2);
 	$(document).ready(function () {
 	    var model = new model_1.default(5, 5).getModel();
@@ -68,13 +68,16 @@
 
 	Object.defineProperty(exports, "__esModule", { value: true });
 	var equal = __webpack_require__(3);
+	var es6BindAll = __webpack_require__(6);
 	var Model = /** @class */function () {
 	    function Model(width, height) {
 	        this.boardStates = [];
+	        this.bindMethods = ["boardInit", "nextBoardState", "editCellAliveState", "changeWidth", "changeHeight", "changeStopGame", "isGameStop", "getCurrentBoard", "getBoardWidth", "clearBoardStates"];
 	        this.board = {};
 	        this.width = width;
 	        this.height = height;
 	        this.stopGame = false;
+	        es6BindAll(this, this.bindMethods);
 	    }
 	    Model.prototype.boardInit = function () {
 	        var currentCell;
@@ -219,16 +222,16 @@
 	    };
 	    Model.prototype.getModel = function () {
 	        return {
-	            boardInit: this.boardInit.bind(this),
-	            nextBoardState: this.nextBoardState.bind(this),
-	            editCellAliveState: this.editCellAliveState.bind(this),
-	            changeWidth: this.changeWidth.bind(this),
-	            changeHeight: this.changeHeight.bind(this),
-	            changeStopGame: this.changeStopGame.bind(this),
-	            isGameStop: this.isGameStop.bind(this),
-	            getCurrentBoard: this.getCurrentBoard.bind(this),
-	            getBoardWidth: this.getBoardWidth.bind(this),
-	            clearBoardStates: this.clearBoardStates.bind(this)
+	            boardInit: this.boardInit,
+	            nextBoardState: this.nextBoardState,
+	            editCellAliveState: this.editCellAliveState,
+	            changeWidth: this.changeWidth,
+	            changeHeight: this.changeHeight,
+	            changeStopGame: this.changeStopGame,
+	            isGameStop: this.isGameStop,
+	            getCurrentBoard: this.getCurrentBoard,
+	            getBoardWidth: this.getBoardWidth,
+	            clearBoardStates: this.clearBoardStates
 	        };
 	    };
 	    return Model;
@@ -10646,24 +10649,76 @@
 /* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
+	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;(function (global, factory) {
+	  if (true) {
+	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [module, exports], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	  } else if (typeof exports !== "undefined") {
+	    factory(module, exports);
+	  } else {
+	    var mod = {
+	      exports: {}
+	    };
+	    factory(mod, mod.exports);
+	    global.es6bindall = mod.exports;
+	  }
+	})(this, function (module, exports) {
+	  "use strict";
+
+	  Object.defineProperty(exports, "__esModule", {
+	    value: true
+	  });
+	  /**
+	   * es6BindAll Binds methods to their parent contexts, e.g. and ES6 class
+	   * @param  {class} context     The context to which the methods will be bound.  Normally an ES6 class.
+	   * @param  {array} methods An Array of methods to bind to the context.
+	   * @return {null}             Function returns nothing.
+	   */
+
+	  function es6BindAll(context, methodNames) {
+	    if (!Array.isArray(methodNames)) {
+	      methodNames = [methodNames];
+	    }
+	    methodNames.map(function (method) {
+	      try {
+	        context[method] = context[method].bind(context);
+	      } catch (e) {
+	        var cName = context.name ? ", " + context.name : "";
+	        var mName = typeof method === "function" ? method.name : method;
+	        console.log("Error: " + e);
+	        throw new Error("Cannot bind method " + mName + " to the supplied context" + cName);
+	      }
+	      return null;
+	    });
+	  }
+
+	  exports.default = es6BindAll;
+	  module.exports = exports["default"];
+	});
+
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
 	"use strict";
 
 	Object.defineProperty(exports, "__esModule", { value: true });
 	var $ = __webpack_require__(2);
-	__webpack_require__(7);
 	__webpack_require__(8);
 	__webpack_require__(9);
-	var pubsub_1 = __webpack_require__(10);
+	__webpack_require__(10);
+	var es6BindAll = __webpack_require__(6);
+	var pubsub_1 = __webpack_require__(11);
 	var View = /** @class */function () {
 	    function View() {
 	        this.bindMethods = ["draw", "toggleCellClass"];
 	        this.pubsub = new pubsub_1.default();
-	        this.bindAllMethods(this, this.bindMethods);
+	        es6BindAll(this, this.bindMethods);
 	        this.initDOMElements();
 	        this.initPublishers();
 	    }
 	    View.prototype.draw = function (board, boardWidth) {
-	        $("#board").html("");
+	        this.$board.html("");
 	        $.template("sample", '<i class="cell" id="' + "x" + "${x}" + "y" + '${y}"></i>');
 	        $.template("sampleDead", '<i class="cell dead" id="' + "x" + "${x}" + "y" + '${y}"></i>');
 	        var len = objectLength(board);
@@ -10674,7 +10729,7 @@
 	                $.tmpl("sampleDead", board[key]).appendTo("#board");
 	            }
 	        }
-	        $("#board").attr("style", "width: " + boardWidth * 20 + "px");
+	        this.$board.attr("style", "width: " + boardWidth * 20 + "px");
 	        this.updateCellClickHandlers();
 	    };
 	    View.prototype.toggleCellClass = function (cell) {
@@ -10685,28 +10740,24 @@
 	            return key;
 	        }
 	    };
-	    View.prototype.addPublisher = function (el, eventType, publisherMessage, handler, param) {
+	    View.prototype.addPublisher = function (el, eventType, publisherMessage, param) {
+	        var _this = this;
 	        if (param && param.passValue) {
 	            $(el).on(eventType, function (e) {
-	                handler(publisherMessage, e.currentTarget.value);
+	                _this.pubsub.publish(publisherMessage, e.currentTarget.value);
 	            });
 	            return;
 	        }
 	        $(el).on(eventType, function () {
-	            handler(publisherMessage);
-	        });
-	    };
-	    View.prototype.bindAllMethods = function (context, methodNames) {
-	        methodNames.map(function (methodName) {
-	            context[methodName] = context[methodName].bind(context);
+	            _this.pubsub.publish(publisherMessage);
 	        });
 	    };
 	    View.prototype.initPublishers = function () {
-	        this.addPublisher(this.$startButton, "click", "startGame", this.pubsub.publish);
-	        this.addPublisher(this.$pauseButton, "click", "pauseGame", this.pubsub.publish);
-	        this.addPublisher(this.$restartButton, "click", "restartGame", this.pubsub.publish);
-	        this.addPublisher(this.$widthInput, "blur", "changeWidth", this.pubsub.publish, { passValue: true });
-	        this.addPublisher(this.$heightInput, "blur", "changeHeight", this.pubsub.publish, { passValue: true });
+	        this.addPublisher(this.startButton, "click", "startGame");
+	        this.addPublisher(this.pauseButton, "click", "pauseGame");
+	        this.addPublisher(this.restartButton, "click", "restartGame");
+	        this.addPublisher(this.widthInput, "blur", "changeWidth", { passValue: true });
+	        this.addPublisher(this.heightInput, "blur", "changeHeight", { passValue: true });
 	        this.updateCellClickHandlers = function () {
 	            var _this = this;
 	            this.$cells = $(".cell");
@@ -10717,11 +10768,12 @@
 	        };
 	    };
 	    View.prototype.initDOMElements = function () {
-	        this.$startButton = $("#startButton")[0];
-	        this.$pauseButton = $("#pauseButton")[0];
-	        this.$restartButton = $("#restartButton")[0];
-	        this.$widthInput = $("#widthInput")[0];
-	        this.$heightInput = $("#heightInput")[0];
+	        this.startButton = $("#startButton")[0];
+	        this.pauseButton = $("#pauseButton")[0];
+	        this.restartButton = $("#restartButton")[0];
+	        this.widthInput = $("#widthInput")[0];
+	        this.heightInput = $("#heightInput")[0];
+	        this.$board = $("#board");
 	    };
 	    View.prototype.getView = function () {
 	        return {
@@ -10739,7 +10791,7 @@
 	exports.default = View;
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(jQuery) {"use strict";
@@ -11239,29 +11291,30 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ }),
-/* 8 */
-/***/ (function(module, exports) {
-
-	"use strict";
-
-/***/ }),
 /* 9 */
 /***/ (function(module, exports) {
 
-	// removed by extract-text-webpack-plugin
+	"use strict";
 
 /***/ }),
 /* 10 */
 /***/ (function(module, exports) {
 
+	// removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
 	"use strict";
 
 	Object.defineProperty(exports, "__esModule", { value: true });
+	var es6BindAll = __webpack_require__(6);
 	var Pubsub = /** @class */function () {
 	    function Pubsub() {
 	        this.bindMethods = ["subscribe", "unsubscribe", "publish"];
 	        this.pubsub = {};
-	        this.bindAllMethods(this, this.bindMethods);
+	        es6BindAll(this, this.bindMethods);
 	    }
 	    Pubsub.prototype.subscribe = function (eventName, fn) {
 	        this.pubsub[eventName] = this.pubsub[eventName] || [];
@@ -11284,28 +11337,24 @@
 	            });
 	        }
 	    };
-	    Pubsub.prototype.bindAllMethods = function (context, methodNames) {
-	        methodNames.map(function (methodName) {
-	            context[methodName] = context[methodName].bind(context);
-	        });
-	    };
 	    return Pubsub;
 	}();
 	exports.default = Pubsub;
 
 /***/ }),
-/* 11 */
-/***/ (function(module, exports) {
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
 
 	Object.defineProperty(exports, "__esModule", { value: true });
+	var es6BindAll = __webpack_require__(6);
 	var Controller = /** @class */function () {
 	    function Controller() {
 	        this.bindMethods = ["startGame", "pauseGame", "restartGame", "changeWidth", "changeHeight", "cellClicked"];
 	    }
 	    Controller.prototype.init = function () {
-	        this.bindAllMethods(this, this.bindMethods);
+	        es6BindAll(this, this.bindMethods);
 	        this.initGame();
 	        this.initSubscribers();
 	    };
@@ -11368,11 +11417,6 @@
 	    };
 	    Controller.prototype.setView = function (view) {
 	        this.view = view;
-	    };
-	    Controller.prototype.bindAllMethods = function (context, methodNames) {
-	        methodNames.map(function (methodName) {
-	            context[methodName] = context[methodName].bind(context);
-	        });
 	    };
 	    Controller.prototype.initSubscribers = function () {
 	        this.view.subscribe("startGame", this.startGame);

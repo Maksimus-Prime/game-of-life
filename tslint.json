@@ -10,7 +10,8 @@
     "max-line-length": false,
     "no-any": true,
     "member-ordering": false,
-    "indent": [true, "spaces", 2]
+    "indent": [true, "spaces", 2],
+    "ordered-imports": false
   },
   "rulesDirectory": []
 }

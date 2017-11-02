@@ -1,3 +1,5 @@
+import es6BindAll = require("es6bindall");
+
 type CallBackData = number | string | void | undefined;
 type CallbackSub = (data?: CallBackData) => void;
 interface IPubsub {
@@ -8,7 +10,7 @@ class Pubsub {
   private bindMethods: string[] = ["subscribe", "unsubscribe", "publish"];
   constructor() {
     this.pubsub = {};
-    this.bindAllMethods(this, this.bindMethods);
+    es6BindAll(this, this.bindMethods);
   }
   public subscribe(eventName: string, fn: CallbackSub): void {
     this.pubsub[eventName] = this.pubsub[eventName] || [];
@@ -30,11 +32,6 @@ class Pubsub {
         fn(data);
       });
     }
-  }
-  private bindAllMethods(context: any, methodNames: string[]): void {
-    methodNames.map(function(methodName: string) {
-      context[methodName] = context[methodName].bind(context);
-    });
   }
 }
 
