@@ -3,7 +3,7 @@
     "target": "es5",
     "module": "commonjs",
     "strict": true,
-    "types": ["chai", "expect", "jquery", "node", "sinon", "deep-equal"],
+    "types": ["chai", "expect", "jquery", "node", "sinon", "deep-equal", "chai-jquery"],
     "lib" : ["es2015", "es2015.iterable", "dom"]
   },
   "exclude": [
