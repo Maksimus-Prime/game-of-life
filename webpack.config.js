@@ -1,11 +1,11 @@
 "use strict";
 const webpack = require("webpack");
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 module.exports = {
   entry: {
-    app: './src/app'
+    app: "./src/app"
   },
   output: {
     path: __dirname + "/public",
@@ -16,10 +16,10 @@ module.exports = {
 
   resolve: {
     modules: [
-      'src',
-      'node_modules'
+      "src",
+      "node_modules"
     ],
-    extensions: ['', '.json', '.js', '.jsx', '.ts', '.tsx']
+    extensions: ["", ".json", ".js", ".jsx", ".ts", ".tsx"]
   },
 
   module: {
@@ -44,13 +44,13 @@ module.exports = {
   },
   devServer: {
     contentBase: __dirname,
-    host: 'localhost',
+    host: "localhost",
     port: 3003
   },
   plugins: [
     new HtmlWebpackPlugin({
-      filename: 'index.html',
-      template: './src/index.pug'
+      filename: "index.html",
+      template: "./src/index.pug"
     }),
     new webpack.ProvidePlugin({
       $: "jquery/dist/jquery.js",

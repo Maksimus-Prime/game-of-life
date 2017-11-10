@@ -29,6 +29,17 @@ interface IView {
   subscribe(eventName: string, fn: CallbackSub): void;
   unsubscribe(eventName: string, fn: CallbackSub): void;
 }
+interface IController {
+  init(): void;
+  startGame(): void;
+  pauseGame(): void;
+  restartGame(): void;
+  changeHeight(newHeight: number): void;
+  changeWidth(newWidth: number): void;
+  cellClicked(cellKey: string): void;
+  setModel(model: IModel): void;
+  setView(view: IView): void;
+}
 class Controller {
   private model: IModel;
   private view: IView;
@@ -39,7 +50,7 @@ class Controller {
     this.initGame();
     this.initSubscribers();
   }
-  public initGame() {
+  private initGame(): void {
     this.model.boardInit();
     const currentBoard = this.model.getCurrentBoard();
     const boardWidth = this.model.getBoardWidth();
