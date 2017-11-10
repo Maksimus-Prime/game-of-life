@@ -9,8 +9,6 @@ interface ICell {
 interface IBoard {
   [index: string]: ICell;
 }
-type CallBackData = number | string | void | undefined;
-type CallbackSub = (data: string | number) => void;
 interface IModel {
   boardInit(): void;
   nextBoardState(): void;
@@ -23,11 +21,14 @@ interface IModel {
   getBoardWidth(): number;
   clearBoardStates(): void;
 }
+type CallbackSub = (data?: number | string | void) => void;
+type CallbackSubNum = (data: number) => void;
+type CallbackSubStr = (data: string) => void;
 interface IView {
   draw(board: IBoard, boardWidth: number): void;
   toggleCellClass(cell: HTMLHtmlElement): string | void;
-  subscribe(eventName: string, fn: CallbackSub): void;
-  unsubscribe(eventName: string, fn: CallbackSub): void;
+  subscribe(eventName: string, fn: CallbackSub | CallbackSubNum | CallbackSubStr): void;
+  unsubscribe(eventName: string, fn: CallbackSub | CallbackSubNum | CallbackSubStr): void;
 }
 interface IController {
   init(): void;

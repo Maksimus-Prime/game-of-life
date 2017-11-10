@@ -10,20 +10,23 @@ interface ICell {
   y: number;
   alive: boolean;
 }
-type CallBackData = number | string | void | undefined;
-type CallbackSub = (data?: CallBackData) => void;
 interface IBoard {
   [index: string]: ICell;
 }
-interface IPubsub {
-  [index: string]: [(data?: CallBackData) => void];
+interface IPubSub {
+  subscribe(eventName: string, fn: CallbackSub | CallbackSubNum | CallbackSubStr): void;
+  unsubscribe(eventName: string, fn: CallbackSub | CallbackSubNum | CallbackSubStr): void;
+  publish(eventName: string, data?: string | number | void): void;
 }
 type EventType = "click" | "blur";
+type CallbackSub = (data?: number | string | void) => void;
+type CallbackSubNum = (data: number) => void;
+type CallbackSubStr = (data: string) => void;
 interface IView {
   draw(board: IBoard, boardWidth: number): void;
   toggleCellClass(cell: HTMLHtmlElement): string | void;
-  subscribe(eventName: string, fn: CallbackSub): void;
-  unsubscribe(eventName: string, fn: CallbackSub): void;
+  subscribe(eventName: string, fn: CallbackSub | CallbackSubNum | CallbackSubStr): void;
+  unsubscribe(eventName: string, fn: CallbackSub | CallbackSubNum | CallbackSubStr): void;
 }
 class View {
   private startButton: HTMLButtonElement;
@@ -33,7 +36,7 @@ class View {
   private heightInput: HTMLInputElement;
   private $cells: JQuery<HTMLElement>;
   private $board: JQuery<HTMLElement>;
-  private pubsub: any;
+  private pubsub: IPubSub;
   private updateCellClickHandlers: VoidFunction;
   private bindMethods: string[] = ["draw", "toggleCellClass"];
   constructor() {
