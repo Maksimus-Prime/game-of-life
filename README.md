@@ -20,6 +20,6 @@ npm run prod
 ```
 ### Tests
 ```
-npm run tst
+npm run test
 ```
 Look at the [result](https://maksimus-prime.github.io/game-of-life/public).
