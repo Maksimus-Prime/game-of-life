@@ -62,8 +62,8 @@ class Controller implements IController {
     const boardWidth = this.model.getBoardWidth();
     this.view.draw(currentBoard, boardWidth);
   }
-  public cellClicked(cellKey: string): void {
-    this.model.editCellAliveState(cellKey);
+  public toggleCellAliveState(cellKey: string): void {
+    this.model.toggleCellAliveState(cellKey);
   }
   public setModel(model: IModel): void {
     this.model = model;
@@ -77,7 +77,7 @@ class Controller implements IController {
     this.view.subscribe("restartGame", this.restartGame);
     this.view.subscribe("changeWidth", this.changeWidth);
     this.view.subscribe("changeHeight", this.changeHeight);
-    this.view.subscribe("cellClicked", this.cellClicked);
+    this.view.subscribe("cellClicked", this.toggleCellAliveState);
   }
 }
 
