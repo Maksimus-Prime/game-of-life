@@ -6,7 +6,7 @@ class Controller implements IController {
   private model: IModel;
   private view: IView;
   private timer: number;
-  private bindMethods: string[] = ["startGame", "pauseGame", "restartGame", "changeWidth", "changeHeight", "cellClicked"];
+  private bindMethods: string[] = ["startGame", "pauseGame", "restartGame", "changeWidth", "changeHeight", "toggleCellAliveState"];
   public init() {
     es6BindAll(this, this.bindMethods);
     this.initGame();
