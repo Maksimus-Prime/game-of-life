@@ -1,15 +1,7 @@
 import es6BindAll = require("es6bindall");
+import {IPubSub, IPubsubInner, CallbackSub} from "./../mvc/interfaces";
 
-type CallbackSub = (data?: number | string | void) => void;
-interface IPubSub {
-  subscribe(eventName: string, fn: CallbackSub): void;
-  unsubscribe(eventName: string, fn: CallbackSub): void;
-  publish(eventName: string, data?: string | number | void): void;
-}
-interface IPubsubInner {
-  [index: string]: [(data?: string | number | void) => void];
-}
-class Pubsub {
+class Pubsub implements IPubSub {
   public pubsub: IPubsubInner;
   private bindMethods: string[] = ["subscribe", "unsubscribe", "publish"];
   constructor() {
@@ -32,7 +24,7 @@ class Pubsub {
   }
   public publish(eventName: string, data?: string | number | void): void {
     if (this.pubsub[eventName]) {
-      this.pubsub[eventName].forEach(function(fn) {
+      this.pubsub[eventName].forEach(function(fn: CallbackSub) {
         fn(data);
       });
     }
