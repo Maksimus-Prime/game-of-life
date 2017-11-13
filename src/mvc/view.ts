@@ -4,31 +4,9 @@ import "./../jquery.tmpl.ts";
 import "./view.css";
 import es6BindAll = require("es6bindall");
 import Pubsub from "./../pubsub/pubsub";
+import {IBoard, IView, IDOMView, IPubSub, PublisherEventType} from "./interfaces";
 
-interface ICell {
-  x: number;
-  y: number;
-  alive: boolean;
-}
-interface IBoard {
-  [index: string]: ICell;
-}
-interface IPubSub {
-  subscribe(eventName: string, fn: CallbackSub | CallbackSubNum | CallbackSubStr): void;
-  unsubscribe(eventName: string, fn: CallbackSub | CallbackSubNum | CallbackSubStr): void;
-  publish(eventName: string, data?: string | number | void): void;
-}
-type EventType = "click" | "blur";
-type CallbackSub = (data?: number | string | void) => void;
-type CallbackSubNum = (data: number) => void;
-type CallbackSubStr = (data: string) => void;
-interface IView {
-  draw(board: IBoard, boardWidth: number): void;
-  toggleCellClass(cell: HTMLHtmlElement): string | void;
-  subscribe(eventName: string, fn: CallbackSub | CallbackSubNum | CallbackSubStr): void;
-  unsubscribe(eventName: string, fn: CallbackSub | CallbackSubNum | CallbackSubStr): void;
-}
-class View {
+class View implements IDOMView {
   private startButton: HTMLButtonElement;
   private pauseButton: HTMLButtonElement;
   private restartButton: HTMLButtonElement;
@@ -67,7 +45,7 @@ class View {
       return key;
     }
   }
-  public addPublisher(el: HTMLElement, eventType: EventType, publisherMessage: string, param?: {passValue: boolean}) {
+  public addPublisher(el: HTMLElement, eventType: PublisherEventType, publisherMessage: string, param?: {passValue: boolean}): void {
     if (param && param.passValue) {
       $(el).on(eventType, (e: JQuery.Event) => {
         this.pubsub.publish(publisherMessage, (e.currentTarget as HTMLInputElement).value);

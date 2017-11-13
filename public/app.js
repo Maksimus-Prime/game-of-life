@@ -135,7 +135,6 @@
 	        var _this = this;
 	        var currentBoard = this.board;
 	        var tempBoard = {};
-	        var key;
 	        var flag = false;
 	        var flagNum = 0;
 	        Object.keys(this.board).map(function (cell) {

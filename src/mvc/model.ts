@@ -1,27 +1,8 @@
 import equal = require("deep-equal");
 import es6BindAll = require("es6bindall");
+import {ICell, IBoard, IModel} from "./interfaces";
 
-interface ICell {
-  x: number;
-  y: number;
-  alive: boolean;
-}
-interface IBoard {
-  [index: string]: ICell;
-}
-interface IModel {
-  boardInit(): void;
-  nextBoardState(): void;
-  editCellAliveState(key: string): void;
-  changeWidth(newWidth: number): void;
-  changeHeight(newHeight: number): void;
-  changeStopGame(stopGame: boolean): void;
-  isGameStop(): boolean;
-  getCurrentBoard(): IBoard;
-  getBoardWidth(): number;
-  clearBoardStates(): void;
-}
-class Model {
+class Model implements IModel {
   private boardStates: IBoard[] = [];
   public board: IBoard;
   public width: number;
@@ -91,7 +72,6 @@ class Model {
   public nextBoardState() {
     const currentBoard: IBoard = this.board;
     const tempBoard: IBoard = {};
-    let key: string;
     let flag: boolean = false;
     let flagNum: number = 0;
     Object.keys(this.board).map((cell) => {
@@ -128,7 +108,7 @@ class Model {
     const cellAlive = this.board[key].alive;
     if (cellAlive) {
       this.board[key].alive = false;
-    }else {
+    } else {
       this.board[key].alive = true;
     }
   }

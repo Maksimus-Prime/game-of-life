@@ -1,47 +1,8 @@
 import * as $ from "jquery";
 import es6BindAll = require("es6bindall");
+import {IModel, IView, IController} from "./interfaces";
 
-interface ICell {
-  x: number;
-  y: number;
-  alive: boolean;
-}
-interface IBoard {
-  [index: string]: ICell;
-}
-interface IModel {
-  boardInit(): void;
-  nextBoardState(): void;
-  editCellAliveState(key: string): void;
-  changeWidth(newWidth: number): void;
-  changeHeight(newHeight: number): void;
-  changeStopGame(stopGame: boolean): void;
-  isGameStop(): boolean;
-  getCurrentBoard(): IBoard;
-  getBoardWidth(): number;
-  clearBoardStates(): void;
-}
-type CallbackSub = (data?: number | string | void) => void;
-type CallbackSubNum = (data: number) => void;
-type CallbackSubStr = (data: string) => void;
-interface IView {
-  draw(board: IBoard, boardWidth: number): void;
-  toggleCellClass(cell: HTMLHtmlElement): string | void;
-  subscribe(eventName: string, fn: CallbackSub | CallbackSubNum | CallbackSubStr): void;
-  unsubscribe(eventName: string, fn: CallbackSub | CallbackSubNum | CallbackSubStr): void;
-}
-interface IController {
-  init(): void;
-  startGame(): void;
-  pauseGame(): void;
-  restartGame(): void;
-  changeHeight(newHeight: number): void;
-  changeWidth(newWidth: number): void;
-  cellClicked(cellKey: string): void;
-  setModel(model: IModel): void;
-  setView(view: IView): void;
-}
-class Controller {
+class Controller implements IController {
   private model: IModel;
   private view: IView;
   private timer: number;
