@@ -9,7 +9,7 @@ export interface IBoard {
 export interface IModel {
   boardInit(): void;
   nextBoardState(): void;
-  editCellAliveState(key: string): void;
+  toggleCellAliveState(key: string): void;
   changeWidth(newWidth: number): void;
   changeHeight(newHeight: number): void;
   changeStopGame(stopGame: boolean): void;
@@ -37,7 +37,7 @@ export interface IController {
   restartGame(): void;
   changeHeight(newHeight: number): void;
   changeWidth(newWidth: number): void;
-  cellClicked(cellKey: string): void;
+  toggleCellAliveState(cellKey: string): void;
   setModel(model: IModel): void;
   setView(view: IView): void;
 }

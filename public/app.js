@@ -72,7 +72,7 @@
 	var Model = /** @class */function () {
 	    function Model(width, height) {
 	        this.boardStates = [];
-	        this.bindMethods = ["boardInit", "nextBoardState", "editCellAliveState", "changeWidth", "changeHeight", "changeStopGame", "isGameStop", "getCurrentBoard", "getBoardWidth", "clearBoardStates"];
+	        this.bindMethods = ["boardInit", "nextBoardState", "toggleCellAliveState", "changeWidth", "changeHeight", "changeStopGame", "isGameStop", "getCurrentBoard", "getBoardWidth", "clearBoardStates"];
 	        this.board = {};
 	        this.width = width;
 	        this.height = height;
@@ -167,7 +167,7 @@
 	        this.boardStates.push(tempBoard);
 	        this.board = tempBoard;
 	    };
-	    Model.prototype.editCellAliveState = function (key) {
+	    Model.prototype.toggleCellAliveState = function (key) {
 	        var cellAlive = this.board[key].alive;
 	        if (cellAlive) {
 	            this.board[key].alive = false;
@@ -226,7 +226,7 @@
 	        return {
 	            boardInit: this.boardInit,
 	            nextBoardState: this.nextBoardState,
-	            editCellAliveState: this.editCellAliveState,
+	            toggleCellAliveState: this.toggleCellAliveState,
 	            changeWidth: this.changeWidth,
 	            changeHeight: this.changeHeight,
 	            changeStopGame: this.changeStopGame,
@@ -11410,8 +11410,8 @@
 	        var boardWidth = this.model.getBoardWidth();
 	        this.view.draw(currentBoard, boardWidth);
 	    };
-	    Controller.prototype.cellClicked = function (cellKey) {
-	        this.model.editCellAliveState(cellKey);
+	    Controller.prototype.toggleCellAliveState = function (cellKey) {
+	        this.model.toggleCellAliveState(cellKey);
 	    };
 	    Controller.prototype.setModel = function (model) {
 	        this.model = model;
@@ -11425,7 +11425,7 @@
 	        this.view.subscribe("restartGame", this.restartGame);
 	        this.view.subscribe("changeWidth", this.changeWidth);
 	        this.view.subscribe("changeHeight", this.changeHeight);
-	        this.view.subscribe("cellClicked", this.cellClicked);
+	        this.view.subscribe("cellClicked", this.toggleCellAliveState);
 	    };
 	    return Controller;
 	}();

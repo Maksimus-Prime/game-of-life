@@ -8,7 +8,7 @@ class Model implements IModel {
   public width: number;
   public height: number;
   public stopGame: boolean;
-  private bindMethods: string[] = ["boardInit", "nextBoardState", "editCellAliveState", "changeWidth", "changeHeight", "changeStopGame", "isGameStop", "getCurrentBoard", "getBoardWidth", "clearBoardStates"];
+  private bindMethods: string[] = ["boardInit", "nextBoardState", "toggleCellAliveState", "changeWidth", "changeHeight", "changeStopGame", "isGameStop", "getCurrentBoard", "getBoardWidth", "clearBoardStates"];
   constructor(width: number, height: number) {
     this.board = {};
     this.width = width;
@@ -104,7 +104,7 @@ class Model implements IModel {
     this.boardStates.push(tempBoard);
     this.board = tempBoard;
   }
-  public editCellAliveState(key: string): void {
+  public toggleCellAliveState(key: string): void {
     const cellAlive = this.board[key].alive;
     if (cellAlive) {
       this.board[key].alive = false;
@@ -161,7 +161,7 @@ class Model implements IModel {
     return {
       boardInit: this.boardInit,
       nextBoardState: this.nextBoardState,
-      editCellAliveState: this.editCellAliveState,
+      toggleCellAliveState: this.toggleCellAliveState,
       changeWidth: this.changeWidth,
       changeHeight: this.changeHeight,
       changeStopGame: this.changeStopGame,
