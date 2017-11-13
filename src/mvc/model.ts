@@ -1,6 +1,7 @@
 import equal = require("deep-equal");
 import es6BindAll = require("es6bindall");
 import {ICell, IBoard, IModel} from "./interfaces";
+import Cell from "./cell";
 
 class Model implements IModel {
   private boardStates: IBoard[] = [];
@@ -21,11 +22,7 @@ class Model implements IModel {
     this.board = {};
     for (let i = 0; i < this.height; i++) {
       for (let j = 0; j < this.width; j++) {
-        currentCell = {
-          x: i,
-          y: j,
-          alive: false,
-        };
+        currentCell = new Cell(i, j, false);
         this.board[getCellRepresentation(i, j)] = currentCell;
       }
     }

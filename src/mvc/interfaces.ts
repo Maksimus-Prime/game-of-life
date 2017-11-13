@@ -2,6 +2,7 @@ export interface ICell {
   x: number;
   y: number;
   alive: boolean;
+  isAlive(): boolean;
 }
 export interface IBoard {
   [index: string]: ICell;

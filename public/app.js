@@ -48,8 +48,8 @@
 
 	Object.defineProperty(exports, "__esModule", { value: true });
 	var model_1 = __webpack_require__(1);
-	var view_1 = __webpack_require__(7);
-	var controller_1 = __webpack_require__(12);
+	var view_1 = __webpack_require__(8);
+	var controller_1 = __webpack_require__(13);
 	var $ = __webpack_require__(2);
 	$(document).ready(function () {
 	    var model = new model_1.default(5, 5).getModel();
@@ -69,6 +69,7 @@
 	Object.defineProperty(exports, "__esModule", { value: true });
 	var equal = __webpack_require__(3);
 	var es6BindAll = __webpack_require__(6);
+	var cell_1 = __webpack_require__(7);
 	var Model = /** @class */function () {
 	    function Model(width, height) {
 	        this.boardStates = [];
@@ -84,11 +85,7 @@
 	        this.board = {};
 	        for (var i = 0; i < this.height; i++) {
 	            for (var j = 0; j < this.width; j++) {
-	                currentCell = {
-	                    x: i,
-	                    y: j,
-	                    alive: false
-	                };
+	                currentCell = new cell_1.default(i, j, false);
 	                this.board[getCellRepresentation(i, j)] = currentCell;
 	            }
 	        }
@@ -10705,12 +10702,35 @@
 	"use strict";
 
 	Object.defineProperty(exports, "__esModule", { value: true });
+	var es6BindAll = __webpack_require__(6);
+	var Cell = /** @class */function () {
+	    function Cell(x, y, alive) {
+	        this.bindMethods = ["isAlive"];
+	        es6BindAll(this, this.bindMethods);
+	        this.x = x;
+	        this.y = y;
+	        this.alive = alive;
+	    }
+	    Cell.prototype.isAlive = function () {
+	        return this.alive;
+	    };
+	    return Cell;
+	}();
+	exports.default = Cell;
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", { value: true });
 	var $ = __webpack_require__(2);
-	__webpack_require__(8);
 	__webpack_require__(9);
 	__webpack_require__(10);
+	__webpack_require__(11);
 	var es6BindAll = __webpack_require__(6);
-	var pubsub_1 = __webpack_require__(11);
+	var pubsub_1 = __webpack_require__(12);
 	var View = /** @class */function () {
 	    function View() {
 	        this.bindMethods = ["draw", "toggleCellClass"];
@@ -10792,7 +10812,7 @@
 	exports.default = View;
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(jQuery) {"use strict";
@@ -11292,19 +11312,19 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports) {
 
 	"use strict";
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -11343,7 +11363,7 @@
 	exports.default = Pubsub;
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -11352,7 +11372,7 @@
 	var es6BindAll = __webpack_require__(6);
 	var Controller = /** @class */function () {
 	    function Controller() {
-	        this.bindMethods = ["startGame", "pauseGame", "restartGame", "changeWidth", "changeHeight", "cellClicked"];
+	        this.bindMethods = ["startGame", "pauseGame", "restartGame", "changeWidth", "changeHeight", "toggleCellAliveState"];
 	    }
 	    Controller.prototype.init = function () {
 	        es6BindAll(this, this.bindMethods);
