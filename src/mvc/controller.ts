@@ -12,17 +12,11 @@ class Controller implements IController {
     this.initGame();
     this.initSubscribers();
   }
-  private initGame(): void {
-    this.model.boardInit();
-    const currentBoard = this.model.getCurrentBoard();
-    const boardWidth = this.model.getBoardWidth();
-    this.view.draw(currentBoard, boardWidth);
-  }
   public startGame(): void {
     this.timer = window.setInterval( () => {
       const gameStopStatus = this.model.isGameStop();
       if (!gameStopStatus) {
-        this.model.changeStopGame(false);
+        this.model.changeStopGameStatus(false);
         this.model.nextBoardState();
         const currentBoard = this.model.getCurrentBoard();
         const boardWidth = this.model.getBoardWidth();
@@ -30,7 +24,7 @@ class Controller implements IController {
       } else {
         alert("Game is over!");
         clearTimeout(this.timer);
-        this.model.changeStopGame(true);
+        this.model.changeStopGameStatus(true);
         this.model.clearBoardStates();
       }
     }, 1000);
@@ -45,7 +39,7 @@ class Controller implements IController {
     clearTimeout(this.timer);
     this.model.boardInit();
     this.model.clearBoardStates();
-    this.model.changeStopGame(false);
+    this.model.changeStopGameStatus(false);
     const currentBoard = this.model.getCurrentBoard();
     const boardWidth = this.model.getBoardWidth();
     this.view.draw(currentBoard, boardWidth);
@@ -70,6 +64,12 @@ class Controller implements IController {
   }
   public setView(view: IView): void {
     this.view = view;
+  }
+  private initGame(): void {
+    this.model.boardInit();
+    const currentBoard = this.model.getCurrentBoard();
+    const boardWidth = this.model.getBoardWidth();
+    this.view.draw(currentBoard, boardWidth);
   }
   private initSubscribers(): void {
     this.view.subscribe("startGame", this.startGame);

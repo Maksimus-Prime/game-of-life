@@ -2,7 +2,6 @@ export interface ICell {
   x: number;
   y: number;
   alive: boolean;
-  isAlive(): boolean;
 }
 export interface IBoard {
   [index: string]: ICell;
@@ -13,7 +12,7 @@ export interface IModel {
   toggleCellAliveState(key: string): void;
   changeWidth(newWidth: number): void;
   changeHeight(newHeight: number): void;
-  changeStopGame(stopGame: boolean): void;
+  changeStopGameStatus(stopGame: boolean): void;
   isGameStop(): boolean;
   getCurrentBoard(): IBoard;
   getBoardWidth(): number;

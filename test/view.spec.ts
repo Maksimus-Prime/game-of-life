@@ -1,40 +1,12 @@
 import Model from "./../src/mvc/model";
 import View from "./../src/mvc/view";
+import {ICell, IBoard, IModel, IView} from "./../src/mvc/interfaces";
 import * as $ from "jquery";
 import * as jsdom from "mocha-jsdom";
 import * as chai from "chai";
 import * as sinon from "sinon";
 chai.use(require("chai-dom"));
 const expect = chai.expect;
-
-interface ICell {
-    x: number;
-    y: number;
-    alive: boolean;
-}
-interface IBoard {
-    [index: string]: ICell;
-}
-type CallBackData = number | string | void | undefined;
-type CallbackSub = (data?: CallBackData) => void;
-interface IModel {
-    boardInit(): void;
-    nextBoardState(): void;
-    editCellAliveState(key: string): void;
-    changeWidth(newWidth: number): void;
-    changeHeight(newHeight: number): void;
-    changeStopGame(stopGame: boolean): void;
-    isGameStop(): boolean;
-    getCurrentBoard(): IBoard;
-    getBoardWidth(): number;
-    clearBoardStates(): void;
-}
-interface IView {
-  draw(board: IBoard, boardWidth: number): void;
-  toggleCellClass(cell: HTMLHtmlElement): string | void;
-  subscribe(eventName: string, fn: CallbackSub): void;
-  unsubscribe(eventName: string, fn: CallbackSub): void;
-}
 
 function makeDOM(): void {
     createDOMElement("div", "board");
