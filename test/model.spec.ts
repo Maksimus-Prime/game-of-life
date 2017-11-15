@@ -3,26 +3,7 @@ import * as chai from "chai";
 import * as sinon from "sinon";
 const expect = chai.expect;
 import Model from "./../src/mvc/model";
-interface ICell {
-    x: number;
-    y: number;
-    alive: boolean;
-}
-interface IBoard {
-    [index: string]: ICell;
-}
-interface IModel {
-    boardInit(): void;
-    nextBoardState(): void;
-    editCellAliveState(key: string): void;
-    changeWidth(newWidth: number): void;
-    changeHeight(newHeight: number): void;
-    changeStopGame(stopGame: boolean): void;
-    isGameStop(): boolean;
-    getCurrentBoard(): IBoard;
-    getBoardWidth(): number;
-    clearBoardStates(): void;
-}
+import {ICell, IBoard, IModel} from "./../src/mvc/interfaces";
 
 describe("model", function() {
     let model: IModel;
@@ -81,25 +62,14 @@ describe("model", function() {
             expect(result).to.eql(width * newHeight);
         });
     });
-    describe("model.editCellAliveState", () => {
-        it("model.editCellAliveState should be a function", () => {
-            expect(model.editCellAliveState).to.be.an("function");
-        });
-        it("model.editCellAliveState should change the property alive of a particular cell", () => {
-            const cell = (model.getCurrentBoard()).x1y1;
-            expect(cell.alive).equal(false);
-            model.editCellAliveState("x1y1");
-            expect(cell.alive).equal(true);
-        });
-    });
     describe("model.changeStopGame", () => {
         it("model.changeStopGame should be a function", () => {
-            expect(model.changeStopGame).to.be.an("function");
+            expect(model.changeStopGameStatus).to.be.an("function");
         });
         it("model.changeStopGame should change the stopStatus of game", () => {
             const stopStatus = model.isGameStop();
             expect(stopStatus).equal(false);
-            model.changeStopGame(true);
+            model.changeStopGameStatus(true);
             expect(model.isGameStop()).equal(true);
         });
     });

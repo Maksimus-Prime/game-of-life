@@ -8,9 +8,7 @@ module.exports = function(config) {
 
     plugins: [
       "mocha",
-      "mocha-jsdom",
       "karma-webpack",
-      "mocha-jsdom",
       "karma-mocha",
       "karma-sinon",
       "karma-chrome-launcher",

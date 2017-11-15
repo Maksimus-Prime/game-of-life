@@ -2,51 +2,11 @@ import * as mocha from "mocha";
 import * as chai from "chai";
 import * as sinon from "sinon";
 const expect = chai.expect;
-
 chai.use(require("chai-dom"));
 import Model from "./../src/mvc/model";
 import View from "./../src/mvc/view";
 import Controller from "./../src/mvc/controller";
-
-interface ICell {
-    x: number;
-    y: number;
-    alive: boolean;
-}
-interface IBoard {
-    [index: string]: ICell;
-}
-type CallBackData = number | string | void | undefined;
-type CallbackSub = (data?: CallBackData) => void;
-interface IModel {
-    boardInit(): void;
-    nextBoardState(): void;
-    editCellAliveState(key: string): void;
-    changeWidth(newWidth: number): void;
-    changeHeight(newHeight: number): void;
-    changeStopGame(stopGame: boolean): void;
-    isGameStop(): boolean;
-    getCurrentBoard(): IBoard;
-    getBoardWidth(): number;
-    clearBoardStates(): void;
-}
-interface IView {
-    draw(board: IBoard, boardWidth: number): void;
-    toggleCellClass(cell: HTMLHtmlElement): string | void;
-    subscribe(eventName: string, fn: CallbackSub): void;
-    unsubscribe(eventName: string, fn: CallbackSub): void;
-}
-interface IController {
-  init(): void;
-  startGame(): void;
-  pauseGame(): void;
-  restartGame(): void;
-  changeHeight(newHeight: number): void;
-  changeWidth(newWidth: number): void;
-  cellClicked(cellKey: string): void;
-  setModel(model: IModel): void;
-  setView(view: IView): void;
-}
+import {IModel, IView, IController} from "./../src/mvc/interfaces";
 
 function makeDOM(): void {
     createDOMElement("div", "board");
@@ -80,7 +40,7 @@ describe("controller", function() {
   describe("controller.cellClicked", function() {
     it('controller.cellClicked should change property "alive" of cell in model and add/remove class "dead" to/from HTMLElement in DOM', function() {
       expect(model.getCurrentBoard().x0y0.alive).equals(false);
-      controller.cellClicked("x0y0");
+      controller.toggleCellAliveState("x0y0");
       expect(model.getCurrentBoard().x0y0.alive).equals(true);
     });
   });
@@ -102,9 +62,9 @@ describe("controller", function() {
   });
   describe("controller.startGame", function() {
     it("controller.startGame should change state of game", function(done) {
-      controller.cellClicked("x0y0");
-      controller.cellClicked("x0y1");
-      controller.cellClicked("x2y1");
+      controller.toggleCellAliveState("x0y0");
+      controller.toggleCellAliveState("x0y1");
+      controller.toggleCellAliveState("x2y1");
       controller.startGame();
       setTimeout(function() {
          controller.pauseGame();
@@ -133,9 +93,9 @@ describe("controller", function() {
   });
   describe("controller.pauseGame", function() {
     it("controller.pauseGame should pause the game", function(done) {
-      controller.cellClicked("x0y0");
-      controller.cellClicked("x0y1");
-      controller.cellClicked("x2y1");
+      controller.toggleCellAliveState("x0y0");
+      controller.toggleCellAliveState("x0y1");
+      controller.toggleCellAliveState("x2y1");
       controller.startGame();
       setTimeout(function() {
          controller.pauseGame();
@@ -164,9 +124,9 @@ describe("controller", function() {
   });
   describe("controller.restartGame", function() {
     it(`controller.restartGame should make all cells again dead, stop the game and let to start again`, function(done) {
-      controller.cellClicked("x0y0");
-      controller.cellClicked("x0y1");
-      controller.cellClicked("x2y1");
+      controller.toggleCellAliveState("x0y0");
+      controller.toggleCellAliveState("x0y1");
+      controller.toggleCellAliveState("x2y1");
       controller.startGame();
       setTimeout(function() {
          controller.restartGame();
