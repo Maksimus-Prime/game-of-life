@@ -12,7 +12,7 @@
         },
         "sourceType": "module"
     },
-    "extends": "eslint:recommended",
+    "extends": "airbnb-base",
     "rules": {
         "semi": ["error", "always"],
         "quotes": ["error", "double"],

@@ -9,7 +9,7 @@ class Model implements IModel {
   public width: number;
   public height: number;
   private stopGame: boolean;
-  private bindMethods: string[] = ["boardInit", "nextBoardState", "toggleCellAliveState", "changeWidth", "changeHeight", "changeStopGameStatus", "isGameStop", "getCurrentBoard", "getBoardWidth", "clearBoardStates"];
+  private bindMethods: string[] = ["boardInit", "nextBoardState", "toggleCellAliveState", "getCellNeighborsNames", "changeWidth", "changeHeight", "changeStopGameStatus", "isGameStop", "getCurrentBoard", "getBoardWidth", "clearBoardStates"];
   constructor(width: number, height: number) {
     this.board = {};
     this.width = width;
@@ -132,28 +132,39 @@ class Model implements IModel {
   private getCellAt(key: string): ICell {
     return this.board[key];
   }
-  private getAliveNeighbors(key: string): number {
+  private getAliveNeighborsCount(key: string): number {
     const x: number = this.board[key].x;
     const y: number = this.board[key].y;
-    let alive: number = 0;
-    let currentCell: ICell;
-    for (let i = -1; i < 2; i++) {
-      for (let j = -1; j < 2; j++) {
-        if (i === 0 && i === j) {
-          continue;
-        }
-        currentCell = this.getCellAt(getCellRepresentation(x + i, y + j));
-        if (currentCell && currentCell.alive) {
-          alive++;
-        }
+    const cellNeighborsNames = this.getCellNeighborsNames(x, y);
+
+    return cellNeighborsNames.reduce((aliveCount, cellName: string) => {
+      if (this.board[cellName].alive) {
+        aliveCount++;
       }
-    }
-    return alive;
+      return aliveCount;
+    }, 0);
+  }
+  private getCellNeighborsNames(x: number, y: number): string[] {
+    const neighbours = [-1, 0, 1];
+    let result: string[] = [];
+    neighbours.map((positionX) => {
+      neighbours.map((positionY) => {
+        if (positionX === 0 && positionX === positionY) {
+          return;
+        } else {
+          const currentCell = this.getCellAt(getCellRepresentation(x + positionX, y + positionY));
+          if (currentCell && currentCell.alive) {
+            result.push(getCellRepresentation(x + positionX, y + positionY));
+          }
+        }
+      });
+    });
+    return result;
   }
   private calculateNextCellState(key: string): ICell {
     const cell: ICell = this.board[key];
     const tempCell: ICell = {x: this.board[key].x, y: this.board[key].y, alive: this.board[key].alive};
-    const livingNeighbours: number = this.getAliveNeighbors(key);
+    const livingNeighbours: number = this.getAliveNeighborsCount(key);
     if (tempCell.alive) {
       if (livingNeighbours === 2 || livingNeighbours === 3) {
         tempCell.alive = true;

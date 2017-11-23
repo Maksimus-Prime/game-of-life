@@ -21,12 +21,14 @@ export interface IModel {
 export interface IDOMView {
   draw(board: IBoard, boardWidth: number): void;
   toggleCellClass(cell: HTMLHtmlElement): string | void;
+  toggleDisplayErrorMessage(gameStopStatus: boolean): void;
   addPublisher(el: HTMLElement, eventType: PublisherEventType, publisherMessage: string, param?: {passValue: boolean}): void;
   getView(): IView;
   }
 export interface IView {
   draw(board: IBoard, boardWidth: number): void;
   toggleCellClass(cell: HTMLHtmlElement): string | void;
+  toggleDisplayErrorMessage(gameStopStatus: boolean): void;
   subscribe(eventName: string, fn: CallbackSub | CallbackSubNum | CallbackSubStr): void;
   unsubscribe(eventName: string, fn: CallbackSub | CallbackSubNum | CallbackSubStr): void;
 }
