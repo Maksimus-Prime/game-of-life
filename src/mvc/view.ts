@@ -15,8 +15,9 @@ class View implements IDOMView {
   private $cells: JQuery<HTMLElement>;
   private $board: JQuery<HTMLElement>;
   private pubsub: IPubSub;
+  private errorMessage: HTMLParagraphElement;
   private updateCellClickHandlers: VoidFunction;
-  private bindMethods: string[] = ["draw", "toggleCellClass"];
+  private bindMethods: string[] = ["draw", "toggleCellClass", "toggleDisplayErrorMessage"];
   constructor() {
     this.pubsub = new Pubsub();
     es6BindAll(this, this.bindMethods);
@@ -77,11 +78,24 @@ class View implements IDOMView {
     this.widthInput = $("#widthInput")[0] as HTMLInputElement;
     this.heightInput = $("#heightInput")[0] as HTMLInputElement;
     this.$board = $("#board");
+    this.errorMessage = this.createErrorMessage();
+  }
+  private createErrorMessage(): HTMLParagraphElement {
+    const errorMessage = document.createElement("p");
+    $(errorMessage).addClass("error-message");
+    $(errorMessage).text("Game is over!");
+    $(document.body).append(errorMessage);
+    return errorMessage;
+  }
+  public toggleDisplayErrorMessage(gameStopStatus: boolean): void {
+    const className: string = "error-message_display";
+    (gameStopStatus) ? $(this.errorMessage).addClass(className) : $(this.errorMessage).removeClass(className);
   }
   public getView(): IView {
     return {
       draw: this.draw,
       toggleCellClass: this.toggleCellClass,
+      toggleDisplayErrorMessage: this.toggleDisplayErrorMessage,
       subscribe: this.pubsub.subscribe,
       unsubscribe: this.pubsub.unsubscribe,
     };
