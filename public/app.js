@@ -73,7 +73,7 @@
 	var Model = /** @class */function () {
 	    function Model(width, height) {
 	        this.boardStates = [];
-	        this.bindMethods = ["boardInit", "nextBoardState", "toggleCellAliveState", "getCellNeighborsNames", "changeWidth", "changeHeight", "changeStopGameStatus", "isGameStop", "getCurrentBoard", "getBoardWidth", "clearBoardStates"];
+	        this.bindMethods = ["boardInit", "nextBoardState", "toggleCellAliveState", "changeWidth", "changeHeight", "changeStopGameStatus", "isGameStop", "getCurrentBoard", "getBoardWidth", "clearBoardStates"];
 	        this.board = {};
 	        this.width = width;
 	        this.height = height;
@@ -202,31 +202,20 @@
 	        var _this = this;
 	        var x = this.board[key].x;
 	        var y = this.board[key].y;
-	        var cellNeighborsNames = this.getCellNeighborsNames(x, y);
-	        return cellNeighborsNames.reduce(function (aliveCount, cellName) {
-	            if (_this.board[cellName].alive) {
-	                aliveCount++;
-	            }
-	            return aliveCount;
-	        }, 0);
-	    };
-	    Model.prototype.getCellNeighborsNames = function (x, y) {
-	        var _this = this;
-	        var neighbours = [-1, 0, 1];
-	        var result = [];
-	        neighbours.map(function (positionX) {
-	            neighbours.map(function (positionY) {
+	        var neighborsPositionRange = [-1, 0, 1];
+	        return neighborsPositionRange.reduce(function (aliveCount, positionX) {
+	            neighborsPositionRange.map(function (positionY) {
 	                if (positionX === 0 && positionX === positionY) {
 	                    return;
 	                } else {
 	                    var currentCell = _this.getCellAt(getCellRepresentation(x + positionX, y + positionY));
 	                    if (currentCell && currentCell.alive) {
-	                        result.push(getCellRepresentation(x + positionX, y + positionY));
+	                        aliveCount++;
 	                    }
 	                }
 	            });
-	        });
-	        return result;
+	            return aliveCount;
+	        }, 0);
 	    };
 	    Model.prototype.calculateNextCellState = function (key) {
 	        var cell = this.board[key];
