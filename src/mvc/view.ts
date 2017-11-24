@@ -1,6 +1,6 @@
 import * as $ from "jquery";
-import "./../jquery.tmpl.js";
-import "./../jquery.tmpl.ts";
+import "./../vendor/jquery.tmpl.js";
+import "./../vendor/jquery.tmpl.ts";
 import "./view.css";
 import es6BindAll = require("es6bindall");
 import Pubsub from "./../pubsub/pubsub";
