@@ -73,7 +73,7 @@
 	var Model = /** @class */function () {
 	    function Model(width, height) {
 	        this.boardStates = [];
-	        this.bindMethods = ["boardInit", "nextBoardState", "toggleCellAliveState", "changeWidth", "changeHeight", "changeStopGameStatus", "isGameStop", "getCurrentBoard", "getBoardWidth", "clearBoardStates"];
+	        this.bindMethods = ["boardInit", "nextBoardState", "getNewBoard", "isExistingBoardState", "hasBoardAliveCells", "toggleCellAliveState", "changeWidth", "changeHeight", "changeStopGameStatus", "isGameStop", "getCurrentBoard", "getBoardWidth", "clearBoardStates"];
 	        this.board = {};
 	        this.width = width;
 	        this.height = height;
@@ -91,40 +91,35 @@
 	        }
 	    };
 	    Model.prototype.nextBoardState = function () {
+	        var newBoard = this.getNewBoard(this.board);
+	        var isExistingBoardState = this.isExistingBoardState(newBoard);
+	        var hasBoardAliveCells = this.hasBoardAliveCells();
+	        if (isExistingBoardState || !hasBoardAliveCells) {
+	            this.changeStopGameStatus(true);
+	            return;
+	        }
+	        this.boardStates.push(newBoard);
+	        this.board = newBoard;
+	    };
+	    Model.prototype.getNewBoard = function (currentBoard) {
 	        var _this = this;
-	        var currentBoard = this.board;
-	        var tempBoard = {};
-	        var flag = false;
-	        var flagNum = 0;
-	        Object.keys(this.board).map(function (cell) {
-	            if (_this.board.hasOwnProperty(cell)) {
-	                var currentCell = _this.board[cell];
-	                var tempCell = _this.calculateNextCellState(cell);
-	                tempBoard[cell] = tempCell;
-	            }
+	        var newBoard = jQuery.extend(true, {}, currentBoard);
+	        Object.keys(newBoard).map(function (cell) {
+	            var tempCell = _this.calculateNextCellState(cell);
+	            newBoard[cell] = tempCell;
 	        });
-	        // check 1
-	        this.boardStates.map(function (boardState) {
-	            if (objectsEqual(boardState, tempBoard)) {
-	                flag = true;
-	            }
+	        return newBoard;
+	    };
+	    Model.prototype.isExistingBoardState = function (newBoard) {
+	        return this.boardStates.some(function (boardState) {
+	            return objectsEqual(newBoard, boardState) === true;
 	        });
-	        if (flag) {
-	            this.stopGame = true;
-	            return;
-	        }
-	        // check 2
-	        Object.keys(this.board).map(function (cell) {
-	            if (_this.board[cell].alive) {
-	                flagNum++;
-	            }
+	    };
+	    Model.prototype.hasBoardAliveCells = function () {
+	        var _this = this;
+	        return Object.keys(this.board).some(function (cell) {
+	            return _this.board[cell].alive === true;
 	        });
-	        if (flagNum === 0) {
-	            this.stopGame = true;
-	            return;
-	        }
-	        this.boardStates.push(tempBoard);
-	        this.board = tempBoard;
 	    };
 	    Model.prototype.toggleCellAliveState = function (key) {
 	        var cellAlive = this.board[key].alive;
@@ -198,10 +193,8 @@
 	    Model.prototype.getCellAt = function (key) {
 	        return this.board[key];
 	    };
-	    Model.prototype.getAliveNeighborsCount = function (key) {
+	    Model.prototype.getAliveNeighborsCount = function (x, y) {
 	        var _this = this;
-	        var x = this.board[key].x;
-	        var y = this.board[key].y;
 	        var neighborsPositionRange = [-1, 0, 1];
 	        return neighborsPositionRange.reduce(function (aliveCount, positionX) {
 	            neighborsPositionRange.map(function (positionY) {
@@ -220,7 +213,7 @@
 	    Model.prototype.calculateNextCellState = function (key) {
 	        var cell = this.board[key];
 	        var tempCell = { x: this.board[key].x, y: this.board[key].y, alive: this.board[key].alive };
-	        var livingNeighbours = this.getAliveNeighborsCount(key);
+	        var livingNeighbours = this.getAliveNeighborsCount(this.board[key].x, this.board[key].y);
 	        if (tempCell.alive) {
 	            if (livingNeighbours === 2 || livingNeighbours === 3) {
 	                tempCell.alive = true;

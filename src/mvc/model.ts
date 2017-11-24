@@ -9,7 +9,7 @@ class Model implements IModel {
   public width: number;
   public height: number;
   private stopGame: boolean;
-  private bindMethods: string[] = ["boardInit", "nextBoardState", "toggleCellAliveState", "changeWidth", "changeHeight", "changeStopGameStatus", "isGameStop", "getCurrentBoard", "getBoardWidth", "clearBoardStates"];
+  private bindMethods: string[] = ["boardInit", "nextBoardState", "getNewBoard", "isExistingBoardState", "hasBoardAliveCells", "toggleCellAliveState", "changeWidth", "changeHeight", "changeStopGameStatus", "isGameStop", "getCurrentBoard", "getBoardWidth", "clearBoardStates"];
   constructor(width: number, height: number) {
     this.board = {};
     this.width = width;
@@ -28,39 +28,33 @@ class Model implements IModel {
     }
   }
   public nextBoardState() {
-    const currentBoard: IBoard = this.board;
-    const tempBoard: IBoard = {};
-    let flag: boolean = false;
-    let flagNum: number = 0;
-    Object.keys(this.board).map((cell) => {
-      if (this.board.hasOwnProperty(cell)) {
-        const currentCell: ICell = this.board[cell];
-        const tempCell: ICell = this.calculateNextCellState(cell);
-        tempBoard[cell] = tempCell;
-      }
-    });
-    // check 1
-    this.boardStates.map(function(boardState: IBoard) {
-      if (objectsEqual(boardState, tempBoard)) {
-        flag = true;
-      }
-    });
-    if (flag) {
-      this.stopGame = true;
+    const newBoard: IBoard = this.getNewBoard(this.board);
+    const isExistingBoardState = this.isExistingBoardState(newBoard);
+    const hasBoardAliveCells = this.hasBoardAliveCells();
+    if (isExistingBoardState || !hasBoardAliveCells) {
+      this.changeStopGameStatus(true);
       return;
     }
-    // check 2
-    Object.keys(this.board).map((cell) => {
-      if (this.board[cell].alive) {
-        flagNum++;
-      }
+    this.boardStates.push(newBoard);
+    this.board = newBoard;
+  }
+  private getNewBoard(currentBoard: IBoard) {
+    const newBoard =jQuery.extend(true, {}, currentBoard);
+    Object.keys(newBoard).map((cell) => {
+      const tempCell: ICell = this.calculateNextCellState(cell);
+      newBoard[cell] = tempCell;
     });
-    if (flagNum === 0) {
-      this.stopGame = true;
-      return;
-    }
-    this.boardStates.push(tempBoard);
-    this.board = tempBoard;
+    return newBoard;
+  }
+  private isExistingBoardState(newBoard: IBoard): boolean {
+    return this.boardStates.some((boardState) => {
+      return objectsEqual(newBoard, boardState) === true;
+    });
+  }
+  private hasBoardAliveCells(): boolean {
+    return Object.keys(this.board).some((cell) => {
+      return this.board[cell].alive === true;
+    });
   }
   public toggleCellAliveState(key: string): void {
     const cellAlive = this.board[key].alive;
@@ -132,9 +126,7 @@ class Model implements IModel {
   private getCellAt(key: string): ICell {
     return this.board[key];
   }
-  private getAliveNeighborsCount(key: string): number {
-    const x: number = this.board[key].x;
-    const y: number = this.board[key].y;
+  private getAliveNeighborsCount(x: number, y: number): number {
     const neighborsPositionRange = [-1, 0, 1];
 
     return neighborsPositionRange.reduce((aliveCount, positionX) => {
@@ -154,7 +146,7 @@ class Model implements IModel {
   private calculateNextCellState(key: string): ICell {
     const cell: ICell = this.board[key];
     const tempCell: ICell = {x: this.board[key].x, y: this.board[key].y, alive: this.board[key].alive};
-    const livingNeighbours: number = this.getAliveNeighborsCount(key);
+    const livingNeighbours: number = this.getAliveNeighborsCount(this.board[key].x, this.board[key].y);
     if (tempCell.alive) {
       if (livingNeighbours === 2 || livingNeighbours === 3) {
         tempCell.alive = true;
