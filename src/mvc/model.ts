@@ -9,7 +9,7 @@ class Model implements IModel {
   public width: number;
   public height: number;
   private stopGame: boolean;
-  private bindMethods: string[] = ["boardInit", "nextBoardState", "toggleCellAliveState", "getCellNeighborsNames", "changeWidth", "changeHeight", "changeStopGameStatus", "isGameStop", "getCurrentBoard", "getBoardWidth", "clearBoardStates"];
+  private bindMethods: string[] = ["boardInit", "nextBoardState", "toggleCellAliveState", "changeWidth", "changeHeight", "changeStopGameStatus", "isGameStop", "getCurrentBoard", "getBoardWidth", "clearBoardStates"];
   constructor(width: number, height: number) {
     this.board = {};
     this.width = width;
@@ -135,31 +135,21 @@ class Model implements IModel {
   private getAliveNeighborsCount(key: string): number {
     const x: number = this.board[key].x;
     const y: number = this.board[key].y;
-    const cellNeighborsNames = this.getCellNeighborsNames(x, y);
+    const neighborsPositionRange = [-1, 0, 1];
 
-    return cellNeighborsNames.reduce((aliveCount, cellName: string) => {
-      if (this.board[cellName].alive) {
-        aliveCount++;
-      }
-      return aliveCount;
-    }, 0);
-  }
-  private getCellNeighborsNames(x: number, y: number): string[] {
-    const neighbours = [-1, 0, 1];
-    let result: string[] = [];
-    neighbours.map((positionX) => {
-      neighbours.map((positionY) => {
+    return neighborsPositionRange.reduce((aliveCount, positionX) => {
+      neighborsPositionRange.map((positionY) => {
         if (positionX === 0 && positionX === positionY) {
           return;
         } else {
           const currentCell = this.getCellAt(getCellRepresentation(x + positionX, y + positionY));
           if (currentCell && currentCell.alive) {
-            result.push(getCellRepresentation(x + positionX, y + positionY));
+            aliveCount++;
           }
         }
       });
-    });
-    return result;
+      return aliveCount;
+    }, 0);
   }
   private calculateNextCellState(key: string): ICell {
     const cell: ICell = this.board[key];
