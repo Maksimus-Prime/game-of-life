@@ -73,7 +73,7 @@
 	var Model = /** @class */function () {
 	    function Model(width, height) {
 	        this.boardStates = [];
-	        this.bindMethods = ["boardInit", "nextBoardState", "getNewBoard", "isExistingBoardState", "hasBoardAliveCells", "toggleCellAliveState", "changeWidth", "changeHeight", "changeStopGameStatus", "isGameStop", "getCurrentBoard", "getBoardWidth", "clearBoardStates"];
+	        this.bindMethods = ["boardInit", "nextBoardState", "getNewBoard", "isExistingBoardState", "hasBoardAliveCells", "toggleCellAliveState", "changeWidth", "changeHeight", "reBuildBoard", "copyExistingCells", "changeStopGameStatus", "isGameStop", "getCurrentBoard", "getBoardWidth", "clearBoardStates"];
 	        this.board = {};
 	        this.width = width;
 	        this.height = height;
@@ -101,6 +101,51 @@
 	        this.boardStates.push(newBoard);
 	        this.board = newBoard;
 	    };
+	    Model.prototype.toggleCellAliveState = function (key) {
+	        var cellAlive = this.board[key].alive;
+	        if (cellAlive) {
+	            this.board[key].alive = false;
+	        } else {
+	            this.board[key].alive = true;
+	        }
+	    };
+	    Model.prototype.changeStopGameStatus = function (stopGame) {
+	        this.stopGame = stopGame;
+	    };
+	    Model.prototype.isGameStop = function () {
+	        return this.stopGame;
+	    };
+	    Model.prototype.getCurrentBoard = function () {
+	        return this.board;
+	    };
+	    Model.prototype.getBoardWidth = function () {
+	        return this.width;
+	    };
+	    Model.prototype.clearBoardStates = function () {
+	        this.boardStates = [];
+	    };
+	    Model.prototype.changeWidth = function (newWidth) {
+	        this.width = newWidth;
+	        this.reBuildBoard();
+	    };
+	    Model.prototype.changeHeight = function (newHeight) {
+	        this.height = newHeight;
+	        this.reBuildBoard();
+	    };
+	    Model.prototype.getModel = function () {
+	        return {
+	            boardInit: this.boardInit,
+	            nextBoardState: this.nextBoardState,
+	            toggleCellAliveState: this.toggleCellAliveState,
+	            changeStopGameStatus: this.changeStopGameStatus,
+	            isGameStop: this.isGameStop,
+	            getCurrentBoard: this.getCurrentBoard,
+	            getBoardWidth: this.getBoardWidth,
+	            clearBoardStates: this.clearBoardStates,
+	            changeWidth: this.changeWidth,
+	            changeHeight: this.changeHeight
+	        };
+	    };
 	    Model.prototype.getNewBoard = function (currentBoard) {
 	        var _this = this;
 	        var newBoard = jQuery.extend(true, {}, currentBoard);
@@ -121,77 +166,37 @@
 	            return _this.board[cell].alive === true;
 	        });
 	    };
-	    Model.prototype.toggleCellAliveState = function (key) {
-	        var cellAlive = this.board[key].alive;
-	        if (cellAlive) {
-	            this.board[key].alive = false;
+	    Model.prototype.reBuildBoard = function () {
+	        var prevBoard = jQuery.extend(true, {}, this.board);
+	        this.boardInit();
+	        this.copyExistingCells(prevBoard);
+	    };
+	    Model.prototype.copyExistingCells = function (prevBoard) {
+	        var _this = this;
+	        Object.keys(this.board).map(function (cell) {
+	            Object.keys(prevBoard).map(function (prevBoardCell) {
+	                if (cell === prevBoardCell) {
+	                    _this.board[getCellRepresentation(prevBoard[cell].x, prevBoard[cell].y)] = prevBoard[cell];
+	                }
+	            });
+	        });
+	    };
+	    Model.prototype.calculateNextCellState = function (key) {
+	        var cell = this.board[key];
+	        var tempCell = { x: cell.x, y: cell.y, alive: cell.alive };
+	        var livingNeighbours = this.getAliveNeighborsCount(cell.x, cell.y);
+	        if (tempCell.alive) {
+	            if (livingNeighbours === 2 || livingNeighbours === 3) {
+	                tempCell.alive = true;
+	            } else {
+	                tempCell.alive = false;
+	            }
 	        } else {
-	            this.board[key].alive = true;
+	            if (livingNeighbours === 3) {
+	                tempCell.alive = true;
+	            }
 	        }
-	    };
-	    Model.prototype.changeWidth = function (newWidth) {
-	        var _this = this;
-	        var temObj = jQuery.extend(true, {}, this.board);
-	        var temWidth = this.width;
-	        this.width = newWidth;
-	        this.boardInit();
-	        Object.keys(this.board).map(function (cell) {
-	            if (_this.board.hasOwnProperty(cell)) {
-	                Object.keys(temObj).map(function (tempCell) {
-	                    if (cell === tempCell) {
-	                        _this.board[getCellRepresentation(temObj[cell].x, temObj[cell].y)] = temObj[cell];
-	                    }
-	                });
-	            }
-	        });
-	    };
-	    Model.prototype.changeHeight = function (newHeight) {
-	        var _this = this;
-	        var temObj = jQuery.extend(true, {}, this.board);
-	        var temHeight = this.height;
-	        this.height = newHeight;
-	        this.boardInit();
-	        Object.keys(this.board).map(function (cell) {
-	            if (_this.board.hasOwnProperty(cell)) {
-	                Object.keys(temObj).map(function (tempCell) {
-	                    if (cell === tempCell) {
-	                        _this.board[getCellRepresentation(temObj[cell].x, temObj[cell].y)] = temObj[cell];
-	                    }
-	                });
-	            }
-	        });
-	    };
-	    Model.prototype.changeStopGameStatus = function (stopGame) {
-	        this.stopGame = stopGame;
-	    };
-	    Model.prototype.isGameStop = function () {
-	        return this.stopGame;
-	    };
-	    Model.prototype.getCurrentBoard = function () {
-	        return this.board;
-	    };
-	    Model.prototype.getBoardWidth = function () {
-	        return this.width;
-	    };
-	    Model.prototype.clearBoardStates = function () {
-	        this.boardStates = [];
-	    };
-	    Model.prototype.getModel = function () {
-	        return {
-	            boardInit: this.boardInit,
-	            nextBoardState: this.nextBoardState,
-	            toggleCellAliveState: this.toggleCellAliveState,
-	            changeWidth: this.changeWidth,
-	            changeHeight: this.changeHeight,
-	            changeStopGameStatus: this.changeStopGameStatus,
-	            isGameStop: this.isGameStop,
-	            getCurrentBoard: this.getCurrentBoard,
-	            getBoardWidth: this.getBoardWidth,
-	            clearBoardStates: this.clearBoardStates
-	        };
-	    };
-	    Model.prototype.getCellAt = function (key) {
-	        return this.board[key];
+	        return tempCell;
 	    };
 	    Model.prototype.getAliveNeighborsCount = function (x, y) {
 	        var _this = this;
@@ -210,22 +215,8 @@
 	            return aliveCount;
 	        }, 0);
 	    };
-	    Model.prototype.calculateNextCellState = function (key) {
-	        var cell = this.board[key];
-	        var tempCell = { x: this.board[key].x, y: this.board[key].y, alive: this.board[key].alive };
-	        var livingNeighbours = this.getAliveNeighborsCount(this.board[key].x, this.board[key].y);
-	        if (tempCell.alive) {
-	            if (livingNeighbours === 2 || livingNeighbours === 3) {
-	                tempCell.alive = true;
-	            } else {
-	                tempCell.alive = false;
-	            }
-	        } else {
-	            if (livingNeighbours === 3) {
-	                tempCell.alive = true;
-	            }
-	        }
-	        return tempCell;
+	    Model.prototype.getCellAt = function (key) {
+	        return this.board[key];
 	    };
 	    return Model;
 	}();
@@ -10761,6 +10752,19 @@
 	            _this.pubsub.publish(publisherMessage);
 	        });
 	    };
+	    View.prototype.toggleDisplayErrorMessage = function (gameStopStatus) {
+	        var className = "error-message_display";
+	        gameStopStatus ? $(this.errorMessage).addClass(className) : $(this.errorMessage).removeClass(className);
+	    };
+	    View.prototype.getView = function () {
+	        return {
+	            draw: this.draw,
+	            toggleCellClass: this.toggleCellClass,
+	            toggleDisplayErrorMessage: this.toggleDisplayErrorMessage,
+	            subscribe: this.pubsub.subscribe,
+	            unsubscribe: this.pubsub.unsubscribe
+	        };
+	    };
 	    View.prototype.initPublishers = function () {
 	        this.addPublisher(this.startButton, "click", "startGame");
 	        this.addPublisher(this.pauseButton, "click", "pauseGame");
@@ -10791,19 +10795,6 @@
 	        $(errorMessage).text("Game is over!");
 	        $(document.body).append(errorMessage);
 	        return errorMessage;
-	    };
-	    View.prototype.toggleDisplayErrorMessage = function (gameStopStatus) {
-	        var className = "error-message_display";
-	        gameStopStatus ? $(this.errorMessage).addClass(className) : $(this.errorMessage).removeClass(className);
-	    };
-	    View.prototype.getView = function () {
-	        return {
-	            draw: this.draw,
-	            toggleCellClass: this.toggleCellClass,
-	            toggleDisplayErrorMessage: this.toggleDisplayErrorMessage,
-	            subscribe: this.pubsub.subscribe,
-	            unsubscribe: this.pubsub.unsubscribe
-	        };
 	    };
 	    return View;
 	}();
