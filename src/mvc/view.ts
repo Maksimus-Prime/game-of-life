@@ -57,6 +57,19 @@ class View implements IDOMView {
       this.pubsub.publish(publisherMessage);
     });
   }
+  public toggleDisplayErrorMessage(gameStopStatus: boolean): void {
+    const className: string = "error-message_display";
+    (gameStopStatus) ? $(this.errorMessage).addClass(className) : $(this.errorMessage).removeClass(className);
+  }
+  public getView(): IView {
+    return {
+      draw: this.draw,
+      toggleCellClass: this.toggleCellClass,
+      toggleDisplayErrorMessage: this.toggleDisplayErrorMessage,
+      subscribe: this.pubsub.subscribe,
+      unsubscribe: this.pubsub.unsubscribe,
+    };
+  }
   private initPublishers(): void {
     this.addPublisher(this.startButton, "click", "startGame");
     this.addPublisher(this.pauseButton, "click", "pauseGame");
@@ -86,19 +99,6 @@ class View implements IDOMView {
     $(errorMessage).text("Game is over!");
     $(document.body).append(errorMessage);
     return errorMessage;
-  }
-  public toggleDisplayErrorMessage(gameStopStatus: boolean): void {
-    const className: string = "error-message_display";
-    (gameStopStatus) ? $(this.errorMessage).addClass(className) : $(this.errorMessage).removeClass(className);
-  }
-  public getView(): IView {
-    return {
-      draw: this.draw,
-      toggleCellClass: this.toggleCellClass,
-      toggleDisplayErrorMessage: this.toggleDisplayErrorMessage,
-      subscribe: this.pubsub.subscribe,
-      unsubscribe: this.pubsub.unsubscribe,
-    };
   }
 }
 

@@ -9,7 +9,7 @@ class Model implements IModel {
   public width: number;
   public height: number;
   private stopGame: boolean;
-  private bindMethods: string[] = ["boardInit", "nextBoardState", "getNewBoard", "isExistingBoardState", "hasBoardAliveCells", "toggleCellAliveState", "changeWidth", "changeHeight", "changeStopGameStatus", "isGameStop", "getCurrentBoard", "getBoardWidth", "clearBoardStates"];
+  private bindMethods: string[] = ["boardInit", "nextBoardState", "getNewBoard", "isExistingBoardState", "hasBoardAliveCells", "toggleCellAliveState", "changeWidth", "changeHeight", "reBuildBoard", "copyExistingCells","changeStopGameStatus", "isGameStop", "getCurrentBoard", "getBoardWidth", "clearBoardStates"];
   constructor(width: number, height: number) {
     this.board = {};
     this.width = width;
@@ -38,6 +38,51 @@ class Model implements IModel {
     this.boardStates.push(newBoard);
     this.board = newBoard;
   }
+  public toggleCellAliveState(key: string): void {
+    const cellAlive = this.board[key].alive;
+    if (cellAlive) {
+      this.board[key].alive = false;
+    } else {
+      this.board[key].alive = true;
+    }
+  }
+  public changeStopGameStatus(stopGame: boolean): void {
+    this.stopGame = stopGame;
+  }
+  public isGameStop(): boolean {
+    return this.stopGame;
+  }
+  public getCurrentBoard(): IBoard {
+    return this.board;
+  }
+  public getBoardWidth(): number {
+    return this.width;
+  }
+  public clearBoardStates(): void {
+    this.boardStates = [];
+  }
+  public changeWidth(newWidth: number): void {
+    this.width = newWidth;
+    this.reBuildBoard();
+  }
+  public changeHeight(newHeight: number): void {
+    this.height = newHeight;
+    this.reBuildBoard();
+  }
+  public getModel(): IModel {
+    return {
+      boardInit: this.boardInit,
+      nextBoardState: this.nextBoardState,
+      toggleCellAliveState: this.toggleCellAliveState,
+      changeStopGameStatus: this.changeStopGameStatus,
+      isGameStop: this.isGameStop,
+      getCurrentBoard: this.getCurrentBoard,
+      getBoardWidth: this.getBoardWidth,
+      clearBoardStates: this.clearBoardStates,
+      changeWidth: this.changeWidth,
+      changeHeight: this.changeHeight,
+    };
+  }
   private getNewBoard(currentBoard: IBoard) {
     const newBoard =jQuery.extend(true, {}, currentBoard);
     Object.keys(newBoard).map((cell) => {
@@ -56,79 +101,40 @@ class Model implements IModel {
       return this.board[cell].alive === true;
     });
   }
-  public toggleCellAliveState(key: string): void {
-    const cellAlive = this.board[key].alive;
-    if (cellAlive) {
-      this.board[key].alive = false;
+  private reBuildBoard(): void {
+    const prevBoard = jQuery.extend(true, {}, this.board);
+    this.boardInit();
+    this.copyExistingCells(prevBoard);
+  }
+  private copyExistingCells(prevBoard: IBoard): void {
+    Object.keys(this.board).map((cell) => {
+        Object.keys(prevBoard).map((prevBoardCell) => {
+          if (cell === prevBoardCell) {
+            this.board[getCellRepresentation(prevBoard[cell].x, prevBoard[cell].y)] = prevBoard[cell];
+          }
+        });
+    });
+  }
+  private calculateNextCellState(key: string): ICell {
+    const cell: ICell = this.board[key];
+    const tempCell: ICell = {x: cell.x, y: cell.y, alive: cell.alive};
+    const livingNeighbours: number = this.getAliveNeighborsCount(cell.x, cell.y);
+    if (tempCell.alive) {
+      if (livingNeighbours === 2 || livingNeighbours === 3) {
+        tempCell.alive = true;
+      } else {
+          tempCell.alive = false;
+      }
     } else {
-      this.board[key].alive = true;
+      if (livingNeighbours === 3) {
+        tempCell.alive = true;
+      }
     }
-  }
-  public changeWidth(newWidth: number): void {
-    const temObj = jQuery.extend(true, {}, this.board);
-    const temWidth = this.width;
-    this.width = newWidth;
-    this.boardInit();
-    Object.keys(this.board).map((cell) => {
-      if (this.board.hasOwnProperty(cell)) {
-        Object.keys(temObj).map((tempCell) => {
-          if (cell === tempCell) {
-              this.board[getCellRepresentation(temObj[cell].x, temObj[cell].y)] = temObj[cell];
-          }
-        });
-      }
-    });
-  }
-  public changeHeight(newHeight: number): void {
-    const temObj = jQuery.extend(true, {}, this.board);
-    const temHeight = this.height;
-    this.height = newHeight;
-    this.boardInit();
-    Object.keys(this.board).map((cell) => {
-      if (this.board.hasOwnProperty(cell)) {
-        Object.keys(temObj).map((tempCell) => {
-          if (cell === tempCell) {
-              this.board[getCellRepresentation(temObj[cell].x, temObj[cell].y)] = temObj[cell];
-          }
-        });
-      }
-    });
-  }
-  public changeStopGameStatus(stopGame: boolean): void {
-    this.stopGame = stopGame;
-  }
-  public isGameStop(): boolean {
-    return this.stopGame;
-  }
-  public getCurrentBoard(): IBoard {
-    return this.board;
-  }
-  public getBoardWidth(): number {
-    return this.width;
-  }
-  public clearBoardStates(): void {
-    this.boardStates = [];
-  }
-  public getModel(): IModel {
-    return {
-      boardInit: this.boardInit,
-      nextBoardState: this.nextBoardState,
-      toggleCellAliveState: this.toggleCellAliveState,
-      changeWidth: this.changeWidth,
-      changeHeight: this.changeHeight,
-      changeStopGameStatus: this.changeStopGameStatus,
-      isGameStop: this.isGameStop,
-      getCurrentBoard: this.getCurrentBoard,
-      getBoardWidth: this.getBoardWidth,
-      clearBoardStates: this.clearBoardStates,
-    };
-  }
-  private getCellAt(key: string): ICell {
-    return this.board[key];
+
+    return tempCell;
   }
   private getAliveNeighborsCount(x: number, y: number): number {
     const neighborsPositionRange = [-1, 0, 1];
-
     return neighborsPositionRange.reduce((aliveCount, positionX) => {
       neighborsPositionRange.map((positionY) => {
         if (positionX === 0 && positionX === positionY) {
@@ -143,23 +149,8 @@ class Model implements IModel {
       return aliveCount;
     }, 0);
   }
-  private calculateNextCellState(key: string): ICell {
-    const cell: ICell = this.board[key];
-    const tempCell: ICell = {x: this.board[key].x, y: this.board[key].y, alive: this.board[key].alive};
-    const livingNeighbours: number = this.getAliveNeighborsCount(this.board[key].x, this.board[key].y);
-    if (tempCell.alive) {
-      if (livingNeighbours === 2 || livingNeighbours === 3) {
-        tempCell.alive = true;
-      } else {
-          tempCell.alive = false;
-      }
-    } else {
-      if (livingNeighbours === 3) {
-        tempCell.alive = true;
-      }
-    }
-
-    return tempCell;
+  private getCellAt(key: string): ICell {
+    return this.board[key];
   }
 }
 
