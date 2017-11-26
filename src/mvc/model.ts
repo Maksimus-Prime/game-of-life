@@ -1,7 +1,7 @@
 import equal = require("deep-equal");
 import es6BindAll = require("es6bindall");
-import {ICell, IBoard, IModel} from "./interfaces";
-import Cell from "./cell";
+import { ICell, IBoard, IModel } from "./Interfaces";
+import Cell from "./Cell";
 
 class Model implements IModel {
   private boardStates: IBoard[] = [];
@@ -9,7 +9,7 @@ class Model implements IModel {
   public width: number;
   public height: number;
   private stopGame: boolean;
-  private bindMethods: string[] = ["boardInit", "nextBoardState", "getNewBoard", "isExistingBoardState", "hasBoardAliveCells", "toggleCellAliveState", "changeWidth", "changeHeight", "reBuildBoard", "copyExistingCells","changeStopGameStatus", "isGameStop", "getCurrentBoard", "getBoardWidth", "clearBoardStates"];
+  private bindMethods: string[] = ["boardInit", "nextBoardState", "getNewBoard", "isExistingBoardState", "hasBoardAliveCells", "toggleCellAliveState", "changeWidth", "changeHeight", "reBuildBoard", "copyExistingCells", "changeStopGameStatus", "isGameStop", "getCurrentBoard", "getBoardWidth", "clearBoardStates"];
   constructor(width: number, height: number) {
     this.board = {};
     this.width = width;
@@ -84,7 +84,7 @@ class Model implements IModel {
     };
   }
   private getNewBoard(currentBoard: IBoard) {
-    const newBoard =jQuery.extend(true, {}, currentBoard);
+    const newBoard = jQuery.extend(true, {}, currentBoard);
     Object.keys(newBoard).map((cell) => {
       const tempCell: ICell = this.calculateNextCellState(cell);
       newBoard[cell] = tempCell;
@@ -108,45 +108,49 @@ class Model implements IModel {
   }
   private copyExistingCells(prevBoard: IBoard): void {
     Object.keys(this.board).map((cell) => {
-        Object.keys(prevBoard).map((prevBoardCell) => {
-          if (cell === prevBoardCell) {
-            this.board[getCellRepresentation(prevBoard[cell].x, prevBoard[cell].y)] = prevBoard[cell];
-          }
-        });
+      Object.keys(prevBoard).map((prevBoardCell) => {
+        if (cell === prevBoardCell) {
+          this.board[getCellRepresentation(prevBoard[cell].x, prevBoard[cell].y)] = prevBoard[cell];
+        }
+      });
     });
   }
   private calculateNextCellState(key: string): ICell {
     const cell: ICell = this.board[key];
-    const tempCell: ICell = {x: cell.x, y: cell.y, alive: cell.alive};
+    const tempCell: ICell = { x: cell.x, y: cell.y, alive: cell.alive };
     const livingNeighbours: number = this.getAliveNeighborsCount(cell.x, cell.y);
-    if (tempCell.alive) {
-      if (livingNeighbours === 2 || livingNeighbours === 3) {
-        tempCell.alive = true;
-      } else {
-          tempCell.alive = false;
-      }
-    } else {
-      if (livingNeighbours === 3) {
-        tempCell.alive = true;
-      }
-    }
-
+    tempCell.alive = this.willCellBeAlive(tempCell, livingNeighbours);
     return tempCell;
+  }
+  private willCellBeAlive(cell: ICell, livingNeighbours: number): boolean {
+    if (cell.alive) {
+      if (livingNeighbours === 2 || livingNeighbours === 3) {
+        return true;
+      }
+      return false;
+    }
+    if (livingNeighbours === 3) {
+      return true;
+    }
+    return cell.alive;
   }
   private getAliveNeighborsCount(x: number, y: number): number {
     const neighborsPositionRange = [-1, 0, 1];
     return neighborsPositionRange.reduce((aliveCount, positionX) => {
-      neighborsPositionRange.map((positionY) => {
-        if (positionX === 0 && positionX === positionY) {
-          return;
-        } else {
-          const currentCell = this.getCellAt(getCellRepresentation(x + positionX, y + positionY));
-          if (currentCell && currentCell.alive) {
-            aliveCount++;
-          }
+      const partOfAliveCount = this.getPartOfALiveCount(x, y, positionX);
+      return aliveCount + partOfAliveCount;
+    }, 0);
+  }
+  private getPartOfALiveCount(x: number, y: number, positionX: number): number {
+    const neighborsPositionRange = [-1, 0, 1];
+    return neighborsPositionRange.reduce((count, positionY) => {
+      if (!(positionX === 0 && positionX === positionY)) {
+        const currentCell = this.getCellAt(getCellRepresentation(x + positionX, y + positionY));
+        if (currentCell && currentCell.alive) {
+          return count + 1;
         }
-      });
-      return aliveCount;
+      }
+      return count + 0;
     }, 0);
   }
   private getCellAt(key: string): ICell {

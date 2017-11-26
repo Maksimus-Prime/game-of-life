@@ -1,4 +1,4 @@
-import {ICell} from "./interfaces";
+import { ICell } from "./Interfaces";
 
 class Cell implements ICell {
   public x: number;

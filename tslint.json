@@ -1,7 +1,7 @@
 {
   "defaultSeverity": "warning",
   "extends": [
-    "tslint-eslint-rules"
+    "tslint-config-airbnb"
   ],
   "jsRules": {},
     "rules": {
@@ -10,8 +10,10 @@
     "max-line-length": false,
     "no-any": true,
     "member-ordering": false,
+    "quotemark": [true, "double"],
     "indent": [true, "spaces", 2],
-    "ordered-imports": false
+    "ordered-imports": false,
+    "no-console": [true, "log", "error"]
   },
   "rulesDirectory": []
 }

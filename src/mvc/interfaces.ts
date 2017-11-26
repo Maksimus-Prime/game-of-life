@@ -24,7 +24,7 @@ export interface IDOMView {
   toggleDisplayErrorMessage(gameStopStatus: boolean): void;
   addPublisher(el: HTMLElement, eventType: PublisherEventType, publisherMessage: string, param?: {passValue: boolean}): void;
   getView(): IView;
-  }
+}
 export interface IView {
   draw(board: IBoard, boardWidth: number): void;
   toggleCellClass(cell: HTMLHtmlElement): string | void;
