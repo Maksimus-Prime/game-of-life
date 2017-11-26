@@ -3,8 +3,8 @@ import "./../vendor/jquery.tmpl.js";
 import "./../vendor/jquery.tmpl.ts";
 import "./view.css";
 import es6BindAll = require("es6bindall");
-import Pubsub from "./../pubsub/pubsub";
-import {IBoard, IView, IDOMView, IPubSub, PublisherEventType} from "./interfaces";
+import Pubsub from "./../pubsub/Pubsub";
+import { IBoard, IView, IDOMView, IPubSub, PublisherEventType } from "./interfaces";
 
 class View implements IDOMView {
   private startButton: HTMLButtonElement;
@@ -26,8 +26,8 @@ class View implements IDOMView {
   }
   public draw(board: IBoard, boardWidth: number): void {
     this.$board.html("");
-    $.template("sample", '<i class="cell" id="' + "x" + "${x}" + "y" + '${y}"></i>');
-    $.template("sampleDead", '<i class="cell dead" id="' + "x" + "${x}" + "y" + '${y}"></i>');
+    $.template("sample", "<i class=\"cell\" id=\"" + "x" + "${x}" + "y" + "${y}\"></i>");
+    $.template("sampleDead", "<i class=\"cell dead\" id=\"" + "x" + "${x}" + "y" + "${y}\"></i>");
     Object.keys(board).map((cell) => {
       if (board[cell].alive) {
         $.tmpl("sample", board[cell]).appendTo("#board");
@@ -74,9 +74,9 @@ class View implements IDOMView {
     this.addPublisher(this.startButton, "click", "startGame");
     this.addPublisher(this.pauseButton, "click", "pauseGame");
     this.addPublisher(this.restartButton, "click", "restartGame");
-    this.addPublisher(this.widthInput, "blur", "changeWidth", {passValue: true});
-    this.addPublisher(this.heightInput, "blur", "changeHeight", {passValue: true});
-    this.updateCellClickHandlers = function() {
+    this.addPublisher(this.widthInput, "blur", "changeWidth", { passValue: true });
+    this.addPublisher(this.heightInput, "blur", "changeHeight", { passValue: true });
+    this.updateCellClickHandlers = function () {
       this.$cells = $(".cell");
       $(this.$cells).on("click", (e: JQuery.Event) => {
         const cellKey = this.toggleCellClass(e.currentTarget as HTMLHtmlElement);

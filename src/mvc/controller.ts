@@ -1,35 +1,23 @@
 import * as $ from "jquery";
 import es6BindAll = require("es6bindall");
-import {IModel, IView, IController} from "./interfaces";
+import { IModel, IView, IController } from "./Interfaces";
 
 class Controller implements IController {
   private model?: IModel;
   private view?: IView;
   private timer: number;
-  private bindMethods: string[] = ["startGame", "pauseGame", "restartGame", "changeWidth", "changeHeight", "toggleCellAliveState"];
+  private bindMethods: string[] = ["startGame", "pauseGame", "restartGame", "changeWidth", "changeHeight", "calculateNextState", "toggleCellAliveState"];
+  constructor() {
+  }
   public init() {
     es6BindAll(this, this.bindMethods);
-      this.initGame();
-      this.initSubscribers();
+    this.initGame();
+    this.initSubscribers();
   }
   public startGame(): void {
     const { model, view } = this;
     if (model && view) {
-      this.timer = window.setInterval( () => {
-        const gameStopStatus = model.isGameStop();
-        if (!gameStopStatus) {
-        model.changeStopGameStatus(false);
-          model.nextBoardState();
-          const currentBoard = model.getCurrentBoard();
-          const boardWidth = model.getBoardWidth();
-          view.draw(currentBoard, boardWidth);
-        } else {
-          clearTimeout(this.timer);
-          model.changeStopGameStatus(true);
-          view.toggleDisplayErrorMessage(model.isGameStop());
-          model.clearBoardStates();
-        }
-      }, 1000);      
+      this.timer = window.setInterval(this.calculateNextState, 1000);
     } else {
       this.throwConsoleError("Please check if you set a view and model using controller's methods setView() and setModel()");
     }
@@ -83,12 +71,12 @@ class Controller implements IController {
     }
   }
   public toggleCellAliveState(cellKey: string): void {
-    const { model} = this;
+    const { model } = this;
     if (model) {
       model.toggleCellAliveState(cellKey);
     } else {
-        this.throwConsoleError("Please check if you set a model using controller's method setModel()");
-      }
+      this.throwConsoleError("Please check if you set a model using controller's method setModel()");
+    }
   }
   public setModel(model: IModel): void {
     this.model = model;
@@ -106,9 +94,6 @@ class Controller implements IController {
       this.throwConsoleError("Please check if you set a view and model using controller's methods setView() and setModel()");
     }
   }
-  private throwConsoleError(message: string): void {
-    console.error(message)
-  }
   private initSubscribers(): void {
     if (this.view) {
       this.view.subscribe("startGame", this.startGame);
@@ -120,6 +105,29 @@ class Controller implements IController {
     } else {
       this.throwConsoleError("Please check if you set a view using using controller's method setView()");
     }
+  }
+  private calculateNextState(): void {
+    const { model, view } = this;
+    if (model && view) {
+      const gameStopStatus = model.isGameStop();
+      if (!gameStopStatus) {
+        model.changeStopGameStatus(false);
+        model.nextBoardState();
+        const currentBoard = model.getCurrentBoard();
+        const boardWidth = model.getBoardWidth();
+        view.draw(currentBoard, boardWidth);
+      } else {
+        clearTimeout(this.timer);
+        model.changeStopGameStatus(true);
+        view.toggleDisplayErrorMessage(model.isGameStop());
+        model.clearBoardStates();
+      }
+    } else {
+      this.throwConsoleError("Please check if you set a view and model using controller's methods setView() and setModel()");
+    }
+  }
+  private throwConsoleError(message: string): void {
+    console.error(message);
   }
 }
 
