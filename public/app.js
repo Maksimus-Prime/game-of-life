@@ -48,16 +48,13 @@
 
 	Object.defineProperty(exports, "__esModule", { value: true });
 	var Model_1 = __webpack_require__(1);
-	var View_1 = __webpack_require__(8);
-	var Controller_1 = __webpack_require__(13);
+	var View_1 = __webpack_require__(9);
+	var Controller_1 = __webpack_require__(14);
 	var $ = __webpack_require__(2);
 	$(document).ready(function () {
 	    var model = new Model_1.default(5, 5).getModel();
 	    var view = new View_1.default().getView();
-	    var controller = new Controller_1.default();
-	    controller.setModel(model);
-	    controller.setView(view);
-	    controller.init();
+	    var controller = new Controller_1.default(model, view);
 	});
 
 /***/ }),
@@ -66,10 +63,19 @@
 
 	/* WEBPACK VAR INJECTION */(function(jQuery) {"use strict";
 
+	var __assign = undefined && undefined.__assign || Object.assign || function (t) {
+	    for (var s, i = 1, n = arguments.length; i < n; i++) {
+	        s = arguments[i];
+	        for (var p in s) {
+	            if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+	        }
+	    }
+	    return t;
+	};
 	Object.defineProperty(exports, "__esModule", { value: true });
-	var equal = __webpack_require__(3);
-	var es6BindAll = __webpack_require__(6);
-	var Cell_1 = __webpack_require__(7);
+	var es6BindAll = __webpack_require__(3);
+	var utils_1 = __webpack_require__(4);
+	var Cell_1 = __webpack_require__(8);
 	var Model = /** @class */function () {
 	    function Model(width, height) {
 	        this.boardStates = [];
@@ -86,14 +92,14 @@
 	        for (var i = 0; i < this.height; i++) {
 	            for (var j = 0; j < this.width; j++) {
 	                currentCell = new Cell_1.default(i, j, false);
-	                this.board[getCellRepresentation(i, j)] = currentCell;
+	                this.board[utils_1.getCellRepresentation(i, j)] = currentCell;
 	            }
 	        }
 	    };
 	    Model.prototype.nextBoardState = function () {
-	        var newBoard = this.getNewBoard(this.board);
+	        var newBoard = this.getNewBoard();
 	        var isExistingBoardState = this.isExistingBoardState(newBoard);
-	        var hasBoardAliveCells = this.hasBoardAliveCells();
+	        var hasBoardAliveCells = this.hasBoardAliveCells(this.board);
 	        if (isExistingBoardState || !hasBoardAliveCells) {
 	            this.changeStopGameStatus(true);
 	            return;
@@ -146,24 +152,21 @@
 	            changeHeight: this.changeHeight
 	        };
 	    };
-	    Model.prototype.getNewBoard = function (currentBoard) {
+	    Model.prototype.getNewBoard = function () {
 	        var _this = this;
-	        var newBoard = jQuery.extend(true, {}, currentBoard);
-	        Object.keys(newBoard).map(function (cell) {
-	            var tempCell = _this.calculateNextCellState(cell);
-	            newBoard[cell] = tempCell;
-	        });
-	        return newBoard;
+	        return Object.keys(this.board).reduce(function (previous, cell) {
+	            return __assign({}, previous, (_a = {}, _a[cell] = _this.calculateNextCellState(cell), _a));
+	            var _a;
+	        }, {});
 	    };
 	    Model.prototype.isExistingBoardState = function (newBoard) {
 	        return this.boardStates.some(function (boardState) {
-	            return objectsEqual(newBoard, boardState) === true;
+	            return utils_1.objectsEqual(newBoard, boardState) === true;
 	        });
 	    };
-	    Model.prototype.hasBoardAliveCells = function () {
-	        var _this = this;
-	        return Object.keys(this.board).some(function (cell) {
-	            return _this.board[cell].alive === true;
+	    Model.prototype.hasBoardAliveCells = function (board) {
+	        return Object.keys(board).some(function (cell) {
+	            return board[cell].alive === true;
 	        });
 	    };
 	    Model.prototype.reBuildBoard = function () {
@@ -176,7 +179,7 @@
 	        Object.keys(this.board).map(function (cell) {
 	            Object.keys(prevBoard).map(function (prevBoardCell) {
 	                if (cell === prevBoardCell) {
-	                    _this.board[getCellRepresentation(prevBoard[cell].x, prevBoard[cell].y)] = prevBoard[cell];
+	                    _this.board[utils_1.getCellRepresentation(prevBoard[cell].x, prevBoard[cell].y)] = prevBoard[cell];
 	                }
 	            });
 	        });
@@ -213,12 +216,12 @@
 	        var neighborsPositionRange = [-1, 0, 1];
 	        return neighborsPositionRange.reduce(function (count, positionY) {
 	            if (!(positionX === 0 && positionX === positionY)) {
-	                var currentCell = _this.getCellAt(getCellRepresentation(x + positionX, y + positionY));
+	                var currentCell = _this.getCellAt(utils_1.getCellRepresentation(x + positionX, y + positionY));
 	                if (currentCell && currentCell.alive) {
 	                    return count + 1;
 	                }
 	            }
-	            return count + 0;
+	            return count;
 	        }, 0);
 	    };
 	    Model.prototype.getCellAt = function (key) {
@@ -226,12 +229,6 @@
 	    };
 	    return Model;
 	}();
-	function getCellRepresentation(x, y) {
-	    return "x" + x + "y" + y;
-	}
-	function objectsEqual(a, b) {
-	    return equal(a, b);
-	}
 	exports.default = Model;
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
@@ -10498,9 +10495,77 @@
 /* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
+	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;(function (global, factory) {
+	  if (true) {
+	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [module, exports], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	  } else if (typeof exports !== "undefined") {
+	    factory(module, exports);
+	  } else {
+	    var mod = {
+	      exports: {}
+	    };
+	    factory(mod, mod.exports);
+	    global.es6bindall = mod.exports;
+	  }
+	})(this, function (module, exports) {
+	  "use strict";
+
+	  Object.defineProperty(exports, "__esModule", {
+	    value: true
+	  });
+	  /**
+	   * es6BindAll Binds methods to their parent contexts, e.g. and ES6 class
+	   * @param  {class} context     The context to which the methods will be bound.  Normally an ES6 class.
+	   * @param  {array} methods An Array of methods to bind to the context.
+	   * @return {null}             Function returns nothing.
+	   */
+
+	  function es6BindAll(context, methodNames) {
+	    if (!Array.isArray(methodNames)) {
+	      methodNames = [methodNames];
+	    }
+	    methodNames.map(function (method) {
+	      try {
+	        context[method] = context[method].bind(context);
+	      } catch (e) {
+	        var cName = context.name ? ", " + context.name : "";
+	        var mName = typeof method === "function" ? method.name : method;
+	        console.log("Error: " + e);
+	        throw new Error("Cannot bind method " + mName + " to the supplied context" + cName);
+	      }
+	      return null;
+	    });
+	  }
+
+	  exports.default = es6BindAll;
+	  module.exports = exports["default"];
+	});
+
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", { value: true });
+	var equal = __webpack_require__(5);
+	function getCellRepresentation(x, y) {
+	    return "x" + x + "y" + y;
+	}
+	exports.getCellRepresentation = getCellRepresentation;
+	function objectsEqual(a, b) {
+	    return equal(a, b);
+	}
+	exports.objectsEqual = objectsEqual;
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
 	var pSlice = Array.prototype.slice;
-	var objectKeys = __webpack_require__(4);
-	var isArguments = __webpack_require__(5);
+	var objectKeys = __webpack_require__(6);
+	var isArguments = __webpack_require__(7);
 
 	var deepEqual = module.exports = function (actual, expected, opts) {
 	  if (!opts) opts = {};
@@ -10595,7 +10660,7 @@
 
 
 /***/ }),
-/* 4 */
+/* 6 */
 /***/ (function(module, exports) {
 
 	exports = module.exports = typeof Object.keys === 'function'
@@ -10610,7 +10675,7 @@
 
 
 /***/ }),
-/* 5 */
+/* 7 */
 /***/ (function(module, exports) {
 
 	var supportsArgumentsClass = (function(){
@@ -10636,58 +10701,7 @@
 
 
 /***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;(function (global, factory) {
-	  if (true) {
-	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [module, exports], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	  } else if (typeof exports !== "undefined") {
-	    factory(module, exports);
-	  } else {
-	    var mod = {
-	      exports: {}
-	    };
-	    factory(mod, mod.exports);
-	    global.es6bindall = mod.exports;
-	  }
-	})(this, function (module, exports) {
-	  "use strict";
-
-	  Object.defineProperty(exports, "__esModule", {
-	    value: true
-	  });
-	  /**
-	   * es6BindAll Binds methods to their parent contexts, e.g. and ES6 class
-	   * @param  {class} context     The context to which the methods will be bound.  Normally an ES6 class.
-	   * @param  {array} methods An Array of methods to bind to the context.
-	   * @return {null}             Function returns nothing.
-	   */
-
-	  function es6BindAll(context, methodNames) {
-	    if (!Array.isArray(methodNames)) {
-	      methodNames = [methodNames];
-	    }
-	    methodNames.map(function (method) {
-	      try {
-	        context[method] = context[method].bind(context);
-	      } catch (e) {
-	        var cName = context.name ? ", " + context.name : "";
-	        var mName = typeof method === "function" ? method.name : method;
-	        console.log("Error: " + e);
-	        throw new Error("Cannot bind method " + mName + " to the supplied context" + cName);
-	      }
-	      return null;
-	    });
-	  }
-
-	  exports.default = es6BindAll;
-	  module.exports = exports["default"];
-	});
-
-
-/***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -10704,18 +10718,18 @@
 	exports.default = Cell;
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
 
 	Object.defineProperty(exports, "__esModule", { value: true });
 	var $ = __webpack_require__(2);
-	__webpack_require__(9);
 	__webpack_require__(10);
 	__webpack_require__(11);
-	var es6BindAll = __webpack_require__(6);
-	var Pubsub_1 = __webpack_require__(12);
+	__webpack_require__(12);
+	var es6BindAll = __webpack_require__(3);
+	var Pubsub_1 = __webpack_require__(13);
 	var View = /** @class */function () {
 	    function View() {
 	        this.bindMethods = ["draw", "toggleCellClass", "toggleDisplayErrorMessage"];
@@ -10804,13 +10818,10 @@
 	    };
 	    return View;
 	}();
-	function objectLength(object) {
-	    return Object.keys(object).length;
-	}
 	exports.default = View;
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(jQuery) {"use strict";
@@ -11310,25 +11321,25 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports) {
 
 	"use strict";
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
 
 	Object.defineProperty(exports, "__esModule", { value: true });
-	var es6BindAll = __webpack_require__(6);
+	var es6BindAll = __webpack_require__(3);
 	var Pubsub = /** @class */function () {
 	    function Pubsub() {
 	        this.bindMethods = ["subscribe", "unsubscribe", "publish"];
@@ -11361,148 +11372,91 @@
 	exports.default = Pubsub;
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
 
 	Object.defineProperty(exports, "__esModule", { value: true });
-	var es6BindAll = __webpack_require__(6);
+	var es6BindAll = __webpack_require__(3);
 	var Controller = /** @class */function () {
-	    function Controller() {
+	    function Controller(model, view) {
 	        this.bindMethods = ["startGame", "pauseGame", "restartGame", "changeWidth", "changeHeight", "calculateNextState", "toggleCellAliveState"];
-	    }
-	    Controller.prototype.init = function () {
 	        es6BindAll(this, this.bindMethods);
+	        this.model = model;
+	        this.view = view;
 	        this.initGame();
 	        this.initSubscribers();
-	    };
+	    }
 	    Controller.prototype.startGame = function () {
-	        var _a = this,
-	            model = _a.model,
-	            view = _a.view;
-	        if (model && view) {
-	            this.timer = window.setInterval(this.calculateNextState, 1000);
-	        } else {
-	            this.throwConsoleError("Please check if you set a view and model using controller's methods setView() and setModel()");
-	        }
+	        this.timer = window.setInterval(this.calculateNextState, 1000);
 	    };
 	    Controller.prototype.pauseGame = function () {
-	        var _a = this,
-	            model = _a.model,
-	            view = _a.view;
-	        if (model && view) {
-	            clearTimeout(this.timer);
-	            var currentBoard = model.getCurrentBoard();
-	            var boardWidth = model.getBoardWidth();
-	            view.draw(currentBoard, boardWidth);
-	        } else {
-	            this.throwConsoleError("Please check if you set a view and model using controller's methods setView() and setModel()");
-	        }
+	        clearTimeout(this.timer);
+	        var currentBoard = this.model.getCurrentBoard();
+	        var boardWidth = this.model.getBoardWidth();
+	        this.view.draw(currentBoard, boardWidth);
 	    };
 	    Controller.prototype.restartGame = function () {
-	        var _a = this,
-	            model = _a.model,
-	            view = _a.view;
-	        if (model && view) {
-	            clearTimeout(this.timer);
-	            model.boardInit();
-	            model.clearBoardStates();
-	            model.changeStopGameStatus(false);
-	            view.toggleDisplayErrorMessage(model.isGameStop());
-	            var currentBoard = model.getCurrentBoard();
-	            var boardWidth = model.getBoardWidth();
-	            view.draw(currentBoard, boardWidth);
-	        } else {
-	            this.throwConsoleError("Please check if you set a view and model using controller's methods setView() and setModel()");
-	        }
+	        clearTimeout(this.timer);
+	        this.model.boardInit();
+	        this.model.clearBoardStates();
+	        this.model.changeStopGameStatus(false);
+	        this.view.toggleDisplayErrorMessage(this.model.isGameStop());
+	        var currentBoard = this.model.getCurrentBoard();
+	        var boardWidth = this.model.getBoardWidth();
+	        this.view.draw(currentBoard, boardWidth);
 	    };
 	    Controller.prototype.changeHeight = function (newHeight) {
-	        var _a = this,
-	            model = _a.model,
-	            view = _a.view;
-	        if (model && view) {
-	            model.changeHeight(newHeight);
-	            var currentBoard = model.getCurrentBoard();
-	            var boardWidth = model.getBoardWidth();
-	            view.draw(currentBoard, boardWidth);
-	        } else {
-	            this.throwConsoleError("Please check if you set a view and model using controller's methods setView() and setModel()");
-	        }
+	        this.model.changeHeight(newHeight);
+	        var currentBoard = this.model.getCurrentBoard();
+	        var boardWidth = this.model.getBoardWidth();
+	        this.view.draw(currentBoard, boardWidth);
 	    };
 	    Controller.prototype.changeWidth = function (newWidth) {
-	        var _a = this,
-	            model = _a.model,
-	            view = _a.view;
-	        if (model && view) {
-	            model.changeWidth(newWidth);
-	            var currentBoard = model.getCurrentBoard();
-	            var boardWidth = model.getBoardWidth();
-	            view.draw(currentBoard, boardWidth);
-	        } else {
-	            this.throwConsoleError("Please check if you set a view and model using controller's methods setView() and setModel()");
-	        }
+	        this.model.changeWidth(newWidth);
+	        var currentBoard = this.model.getCurrentBoard();
+	        var boardWidth = this.model.getBoardWidth();
+	        this.view.draw(currentBoard, boardWidth);
 	    };
 	    Controller.prototype.toggleCellAliveState = function (cellKey) {
-	        var model = this.model;
-	        if (model) {
-	            model.toggleCellAliveState(cellKey);
-	        } else {
-	            this.throwConsoleError("Please check if you set a model using controller's method setModel()");
-	        }
-	    };
-	    Controller.prototype.setModel = function (model) {
-	        this.model = model;
-	    };
-	    Controller.prototype.setView = function (view) {
-	        this.view = view;
+	        this.model.toggleCellAliveState(cellKey);
 	    };
 	    Controller.prototype.initGame = function () {
-	        if (this.model && this.view) {
+	        try {
 	            this.model.boardInit();
 	            var currentBoard = this.model.getCurrentBoard();
 	            var boardWidth = this.model.getBoardWidth();
 	            this.view.draw(currentBoard, boardWidth);
-	        } else {
-	            this.throwConsoleError("Please check if you set a view and model using controller's methods setView() and setModel()");
+	        } catch (error) {
+	            this.throwError();
 	        }
 	    };
 	    Controller.prototype.initSubscribers = function () {
-	        if (this.view) {
-	            this.view.subscribe("startGame", this.startGame);
-	            this.view.subscribe("pauseGame", this.pauseGame);
-	            this.view.subscribe("restartGame", this.restartGame);
-	            this.view.subscribe("changeWidth", this.changeWidth);
-	            this.view.subscribe("changeHeight", this.changeHeight);
-	            this.view.subscribe("cellClicked", this.toggleCellAliveState);
-	        } else {
-	            this.throwConsoleError("Please check if you set a view using using controller's method setView()");
-	        }
+	        this.view.subscribe("startGame", this.startGame);
+	        this.view.subscribe("pauseGame", this.pauseGame);
+	        this.view.subscribe("restartGame", this.restartGame);
+	        this.view.subscribe("changeWidth", this.changeWidth);
+	        this.view.subscribe("changeHeight", this.changeHeight);
+	        this.view.subscribe("cellClicked", this.toggleCellAliveState);
 	    };
 	    Controller.prototype.calculateNextState = function () {
-	        var _a = this,
-	            model = _a.model,
-	            view = _a.view;
-	        if (model && view) {
-	            var gameStopStatus = model.isGameStop();
-	            if (!gameStopStatus) {
-	                model.changeStopGameStatus(false);
-	                model.nextBoardState();
-	                var currentBoard = model.getCurrentBoard();
-	                var boardWidth = model.getBoardWidth();
-	                view.draw(currentBoard, boardWidth);
-	            } else {
-	                clearTimeout(this.timer);
-	                model.changeStopGameStatus(true);
-	                view.toggleDisplayErrorMessage(model.isGameStop());
-	                model.clearBoardStates();
-	            }
+	        var gameStopStatus = this.model.isGameStop();
+	        if (!gameStopStatus) {
+	            this.model.changeStopGameStatus(false);
+	            this.model.nextBoardState();
+	            var currentBoard = this.model.getCurrentBoard();
+	            var boardWidth = this.model.getBoardWidth();
+	            this.view.draw(currentBoard, boardWidth);
 	        } else {
-	            this.throwConsoleError("Please check if you set a view and model using controller's methods setView() and setModel()");
+	            clearTimeout(this.timer);
+	            this.model.changeStopGameStatus(true);
+	            this.view.toggleDisplayErrorMessage(this.model.isGameStop());
+	            this.model.clearBoardStates();
 	        }
 	    };
-	    Controller.prototype.throwConsoleError = function (message) {
-	        console.error(message);
+	    Controller.prototype.throwError = function () {
+	        throw new Error("Please check if you pass model and view into Controller function");
 	    };
 	    return Controller;
 	}();
