@@ -85,9 +85,11 @@ class Model implements IModel {
   }
   private getNewBoard(): IBoard {
     return Object.keys(this.board).reduce((previous, cell) => {
-      previous[cell] = this.calculateNextCellState(cell);
-      return previous;
-    }, jQuery.extend(true, {}, this.board));
+      return {
+        ...previous,
+        [cell]: this.calculateNextCellState(cell),
+      };
+    }, {});
   }
   private isExistingBoardState(newBoard: IBoard): boolean {
     return this.boardStates.some((boardState) => {
