@@ -3,131 +3,86 @@ import es6BindAll = require("es6bindall");
 import { IModel, IView, IController } from "./Interfaces";
 
 class Controller implements IController {
-  private model?: IModel;
-  private view?: IView;
+  private model: IModel;
+  private view: IView;
   private timer: number;
   private bindMethods: string[] = ["startGame", "pauseGame", "restartGame", "changeWidth", "changeHeight", "calculateNextState", "toggleCellAliveState"];
-  constructor() {
-  }
-  public init() {
+  constructor(model: IModel, view: IView) {
     es6BindAll(this, this.bindMethods);
+    this.model = model;
+    this.view = view;
     this.initGame();
     this.initSubscribers();
   }
   public startGame(): void {
-    const { model, view } = this;
-    if (model && view) {
-      this.timer = window.setInterval(this.calculateNextState, 1000);
-    } else {
-      this.throwConsoleError("Please check if you set a view and model using controller's methods setView() and setModel()");
-    }
+    this.timer = window.setInterval(this.calculateNextState, 1000);
   }
   public pauseGame(): void {
-    const { model, view } = this;
-    if (model && view) {
-      clearTimeout(this.timer);
-      const currentBoard = model.getCurrentBoard();
-      const boardWidth = model.getBoardWidth();
-      view.draw(currentBoard, boardWidth);
-    } else {
-      this.throwConsoleError("Please check if you set a view and model using controller's methods setView() and setModel()");
-    }
+    clearTimeout(this.timer);
+    const currentBoard = this.model.getCurrentBoard();
+    const boardWidth = this.model.getBoardWidth();
+    this.view.draw(currentBoard, boardWidth);
   }
   public restartGame(): void {
-    const { model, view } = this;
-    if (model && view) {
-      clearTimeout(this.timer);
-      model.boardInit();
-      model.clearBoardStates();
-      model.changeStopGameStatus(false);
-      view.toggleDisplayErrorMessage(model.isGameStop());
-      const currentBoard = model.getCurrentBoard();
-      const boardWidth = model.getBoardWidth();
-      view.draw(currentBoard, boardWidth);
-    } else {
-      this.throwConsoleError("Please check if you set a view and model using controller's methods setView() and setModel()");
-    }
+    clearTimeout(this.timer);
+    this.model.boardInit();
+    this.model.clearBoardStates();
+    this.model.changeStopGameStatus(false);
+    this.view.toggleDisplayErrorMessage(this.model.isGameStop());
+    const currentBoard = this.model.getCurrentBoard();
+    const boardWidth = this.model.getBoardWidth();
+    this.view.draw(currentBoard, boardWidth);
   }
   public changeHeight(newHeight: number): void {
-    const { model, view } = this;
-    if (model && view) {
-      model.changeHeight(newHeight);
-      const currentBoard = model.getCurrentBoard();
-      const boardWidth = model.getBoardWidth();
-      view.draw(currentBoard, boardWidth);
-    } else {
-      this.throwConsoleError("Please check if you set a view and model using controller's methods setView() and setModel()");
-    }
+    this.model.changeHeight(newHeight);
+    const currentBoard = this.model.getCurrentBoard();
+    const boardWidth = this.model.getBoardWidth();
+    this.view.draw(currentBoard, boardWidth);
   }
   public changeWidth(newWidth: number): void {
-    const { model, view } = this;
-    if (model && view) {
-      model.changeWidth(newWidth);
-      const currentBoard = model.getCurrentBoard();
-      const boardWidth = model.getBoardWidth();
-      view.draw(currentBoard, boardWidth);
-    } else {
-      this.throwConsoleError("Please check if you set a view and model using controller's methods setView() and setModel()");
-    }
+    this.model.changeWidth(newWidth);
+    const currentBoard = this.model.getCurrentBoard();
+    const boardWidth = this.model.getBoardWidth();
+    this.view.draw(currentBoard, boardWidth);
   }
   public toggleCellAliveState(cellKey: string): void {
-    const { model } = this;
-    if (model) {
-      model.toggleCellAliveState(cellKey);
-    } else {
-      this.throwConsoleError("Please check if you set a model using controller's method setModel()");
-    }
-  }
-  public setModel(model: IModel): void {
-    this.model = model;
-  }
-  public setView(view: IView): void {
-    this.view = view;
+    this.model.toggleCellAliveState(cellKey);
   }
   private initGame(): void {
-    if (this.model && this.view) {
+    try {
       this.model.boardInit();
       const currentBoard = this.model.getCurrentBoard();
       const boardWidth = this.model.getBoardWidth();
       this.view.draw(currentBoard, boardWidth);
-    } else {
-      this.throwConsoleError("Please check if you set a view and model using controller's methods setView() and setModel()");
+    } catch (error) {
+      this.throwError();
     }
   }
   private initSubscribers(): void {
-    if (this.view) {
-      this.view.subscribe("startGame", this.startGame);
-      this.view.subscribe("pauseGame", this.pauseGame);
-      this.view.subscribe("restartGame", this.restartGame);
-      this.view.subscribe("changeWidth", this.changeWidth);
-      this.view.subscribe("changeHeight", this.changeHeight);
-      this.view.subscribe("cellClicked", this.toggleCellAliveState);
-    } else {
-      this.throwConsoleError("Please check if you set a view using using controller's method setView()");
-    }
+    this.view.subscribe("startGame", this.startGame);
+    this.view.subscribe("pauseGame", this.pauseGame);
+    this.view.subscribe("restartGame", this.restartGame);
+    this.view.subscribe("changeWidth", this.changeWidth);
+    this.view.subscribe("changeHeight", this.changeHeight);
+    this.view.subscribe("cellClicked", this.toggleCellAliveState);
   }
   private calculateNextState(): void {
-    const { model, view } = this;
-    if (model && view) {
-      const gameStopStatus = model.isGameStop();
-      if (!gameStopStatus) {
-        model.changeStopGameStatus(false);
-        model.nextBoardState();
-        const currentBoard = model.getCurrentBoard();
-        const boardWidth = model.getBoardWidth();
-        view.draw(currentBoard, boardWidth);
-      } else {
-        clearTimeout(this.timer);
-        model.changeStopGameStatus(true);
-        view.toggleDisplayErrorMessage(model.isGameStop());
-        model.clearBoardStates();
-      }
+    const gameStopStatus = this.model.isGameStop();
+    if (!gameStopStatus) {
+      this.model.changeStopGameStatus(false);
+      this.model.nextBoardState();
+      const currentBoard = this.model.getCurrentBoard();
+      const boardWidth = this.model.getBoardWidth();
+      this.view.draw(currentBoard, boardWidth);
     } else {
-      this.throwConsoleError("Please check if you set a view and model using controller's methods setView() and setModel()");
+      clearTimeout(this.timer);
+      this.model.changeStopGameStatus(true);
+      this.view.toggleDisplayErrorMessage(this.model.isGameStop());
+      this.model.clearBoardStates();
     }
   }
-  private throwConsoleError(message: string): void {
-    console.error(message);
+  private throwError(): void {
+    throw new Error("Please check if you pass model and view into Controller function");
   }
 }
 

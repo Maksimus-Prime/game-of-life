@@ -1,6 +1,6 @@
-import equal = require("deep-equal");
 import es6BindAll = require("es6bindall");
 import { ICell, IBoard, IModel } from "./Interfaces";
+import { getCellRepresentation, objectsEqual } from "../utils/utils";
 import Cell from "./Cell";
 
 class Model implements IModel {
@@ -28,9 +28,9 @@ class Model implements IModel {
     }
   }
   public nextBoardState() {
-    const newBoard: IBoard = this.getNewBoard(this.board);
+    const newBoard: IBoard = this.getNewBoard();
     const isExistingBoardState = this.isExistingBoardState(newBoard);
-    const hasBoardAliveCells = this.hasBoardAliveCells();
+    const hasBoardAliveCells = this.hasBoardAliveCells(this.board);
     if (isExistingBoardState || !hasBoardAliveCells) {
       this.changeStopGameStatus(true);
       return;
@@ -83,22 +83,20 @@ class Model implements IModel {
       changeHeight: this.changeHeight,
     };
   }
-  private getNewBoard(currentBoard: IBoard) {
-    const newBoard = jQuery.extend(true, {}, currentBoard);
-    Object.keys(newBoard).map((cell) => {
-      const tempCell: ICell = this.calculateNextCellState(cell);
-      newBoard[cell] = tempCell;
-    });
-    return newBoard;
+  private getNewBoard(): IBoard {
+    return Object.keys(this.board).reduce((previous, cell) => {
+      previous[cell] = this.calculateNextCellState(cell);
+      return previous;
+    }, jQuery.extend(true, {}, this.board));
   }
   private isExistingBoardState(newBoard: IBoard): boolean {
     return this.boardStates.some((boardState) => {
       return objectsEqual(newBoard, boardState) === true;
     });
   }
-  private hasBoardAliveCells(): boolean {
-    return Object.keys(this.board).some((cell) => {
-      return this.board[cell].alive === true;
+  private hasBoardAliveCells(board: IBoard): boolean {
+    return Object.keys(board).some((cell) => {
+      return board[cell].alive === true;
     });
   }
   private reBuildBoard(): void {
@@ -150,20 +148,12 @@ class Model implements IModel {
           return count + 1;
         }
       }
-      return count + 0;
+      return count;
     }, 0);
   }
   private getCellAt(key: string): ICell {
     return this.board[key];
   }
-}
-
-function getCellRepresentation(x: number, y: number): string {
-  return "x" + x + "y" + y;
-}
-
-function objectsEqual(a: IBoard, b: IBoard): boolean {
-  return equal(a, b);
 }
 
 export default Model;

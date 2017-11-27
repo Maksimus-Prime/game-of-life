@@ -1,7 +1,7 @@
 import * as $ from "jquery";
 import "./../vendor/jquery.tmpl.js";
 import "./../vendor/jquery.tmpl.ts";
-import "./view.css";
+import "../styles/view.css";
 import es6BindAll = require("es6bindall");
 import Pubsub from "./../pubsub/Pubsub";
 import { IBoard, IView, IDOMView, IPubSub, PublisherEventType } from "./interfaces";
@@ -100,10 +100,6 @@ class View implements IDOMView {
     $(document.body).append(errorMessage);
     return errorMessage;
   }
-}
-
-function objectLength(object: IBoard): number {
-  return Object.keys(object).length;
 }
 
 export default View;

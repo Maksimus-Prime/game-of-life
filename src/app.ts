@@ -6,8 +6,5 @@ import * as $ from "jquery";
 $(document).ready(() => {
   const model = (new Model(5,5)).getModel();
   const view = (new View()).getView();
-  const controller: Controller = new Controller();
-  controller.setModel(model);
-  controller.setView(view);
-  controller.init();
+  const controller: Controller = new Controller(model, view);
 });

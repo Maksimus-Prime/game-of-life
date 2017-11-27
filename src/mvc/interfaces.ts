@@ -33,15 +33,12 @@ export interface IView {
   unsubscribe(eventName: string, fn: CallbackSub | CallbackSubNum | CallbackSubStr): void;
 }
 export interface IController {
-  init(): void;
   startGame(): void;
   pauseGame(): void;
   restartGame(): void;
   changeHeight(newHeight: number): void;
   changeWidth(newWidth: number): void;
   toggleCellAliveState(cellKey: string): void;
-  setModel(model: IModel): void;
-  setView(view: IView): void;
 }
 export type PublisherEventType = "click" | "blur";
 export type CallbackSub = (data?: number | string | void) => void;
